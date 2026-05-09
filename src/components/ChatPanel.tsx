@@ -338,7 +338,7 @@ function ReminderPanel({
     },
     {
       type: "VIP到店",
-      title: "SVIP客户今日抵达松赞梅里山居",
+      title: "金刚会员今日抵达松赞梅里山居",
       detail: "建议同步管家准备欢迎卡、晚餐偏好和次日观景时间。",
       action: "生成管家交接要点",
       tone: "bg-sage/12 text-sage",
