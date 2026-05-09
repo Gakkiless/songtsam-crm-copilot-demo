@@ -1,4 +1,4 @@
-import { CalendarClock, Gem, MapPin, TrendingUp } from "lucide-react";
+import { CalendarClock, CreditCard, Gem, MapPin, Phone, TrendingUp } from "lucide-react";
 import type { ComponentType } from "react";
 import type { Customer } from "../types";
 
@@ -15,8 +15,10 @@ export default function CustomerCard({ customer }: { customer: Customer }) {
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
+        <Info icon={CreditCard} label="会员卡号" value={customer.memberCardNo} />
+        <Info icon={Phone} label="会员手机号" value={customer.memberPhone} />
         <Info icon={MapPin} label="城市" value={customer.city} />
-        <Info icon={TrendingUp} label="历史消费" value={customer.gmv} />
+        <Info icon={TrendingUp} label="历史消费金额" value={`￥${customer.gmv}`} />
         <Info icon={Gem} label="家庭结构" value={customer.family} wide />
         <Info icon={CalendarClock} label="最近出行" value={customer.lastTrip} wide />
       </div>
