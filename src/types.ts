@@ -20,6 +20,8 @@ export type Customer = {
   id: string;
   name: string;
   memberLevel: string;
+  memberCardNo: string;
+  memberPhone: string;
   city: string;
   family: string;
   gmv: string;
