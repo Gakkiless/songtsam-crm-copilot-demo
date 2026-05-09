@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #f8f8f8;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: "HarmonyOS Sans", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #000;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.songtsam-ai {
+  --brand-red: #a43127;
+  --brand-gold: #db8900;
+  --activate: #7c7251;
+  --green: #336735;
+  --functional: #004355;
+  --text-main: #000;
+  --text-secondary: #44494d;
+  --text-gray: #808080;
+  --line: #eeeeee;
+  --bg: #f8f8f8;
+  --card: #fff;
+}
+
+.songtsam-ai [class*="rounded-[14px]"],
+.songtsam-ai [class*="rounded-[15px]"],
+.songtsam-ai [class*="rounded-[16px]"],
+.songtsam-ai [class*="rounded-[18px]"],
+.songtsam-ai [class*="rounded-[20px]"] {
+  border-radius: 8px !important;
+}
+
+.songtsam-ai [class*="rounded-[22px]"],
+.songtsam-ai [class*="rounded-[24px]"] {
+  border-radius: 12px !important;
+}
+
+.songtsam-ai [class*="shadow"] {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.songtsam-ai-card {
+  background: #fff;
+  border: 0.5px solid #eee;
+  border-radius: 8px;
+}
+
+.songtsam-primary {
+  background: #a43127;
+  color: #fff;
+  border-radius: 4px;
+}
+
+.songtsam-secondary {
+  background: #f8f8f8;
+  color: #000;
+  border: 0.5px solid #eeeeee;
+  border-radius: 4px;
+}
+
+.songtsam-outline {
+  background: #fff;
+  color: #a43127;
+  border: 0.5px solid #a43127;
+  border-radius: 4px;
+}
+
+.songtsam-tag-red {
+  background: rgba(164, 49, 39, 0.12);
+  color: #a43127;
+}
+
+.songtsam-tag-gold {
+  background: rgba(219, 137, 0, 0.12);
+  color: #db8900;
+}
+
+.songtsam-tag-green {
+  background: rgba(51, 103, 53, 0.12);
+  color: #336735;
+}
