@@ -281,7 +281,10 @@ function SessionSwitcher({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="font-medium leading-6 text-cedar">{item.name} · {item.memberLevel}</h3>
-                <p className="mt-1 text-xs leading-[18px] text-[#808080]">{item.family}</p>
+                <p className="mt-1 text-xs leading-[18px] text-[#808080]">
+                  {item.memberCardNo} · {item.memberPhone}
+                </p>
+                <p className="mt-0.5 text-xs leading-[18px] text-[#808080]">{item.family}</p>
               </div>
               {item.id === currentSessionId && <span className="shrink-0 rounded-[4px] bg-copper px-2 py-1 text-[11px] leading-4 text-parchment">当前</span>}
             </div>
@@ -544,7 +547,9 @@ function MaintenanceRecordCard({ card, onAsk }: { card: Record<string, unknown>;
           </div>
           <div>
             <h3 className="text-lg font-semibold text-cedar">{String(card.customerName)}</h3>
-            <p className="text-xs text-clay/60">{String(card.customerCode)} · {String(card.memberLevel)}</p>
+            <p className="text-xs text-clay/60">
+              {String(card.customerCode)} · {String(card.memberPhone)} · {String(card.memberLevel)}
+            </p>
           </div>
         </div>
       </div>
@@ -816,8 +821,13 @@ function CustomerInsightCard({ customer, onAsk }: { customer: Customer; onAsk: (
           <p className="text-xs text-copper">客户作战卡</p>
           <h3 className="mt-1 text-lg font-semibold text-cedar">{customer.name}</h3>
           <p className="text-clay/65">{customer.city} · {customer.family}</p>
+          <p className="mt-1 text-xs text-clay/55">
+            会员卡号：{customer.memberCardNo} · 会员手机号：{customer.memberPhone}
+          </p>
         </div>
-        <span className="rounded-full bg-copper/15 px-2.5 py-1 text-xs text-copper">{customer.gmv}</span>
+        <span className="rounded-full bg-copper/15 px-2.5 py-1 text-xs text-copper">
+          历史消费金额：￥{customer.gmv}
+        </span>
       </div>
       <p className="leading-relaxed text-clay/80">{customer.summary}</p>
       <div className="flex flex-wrap gap-2">
