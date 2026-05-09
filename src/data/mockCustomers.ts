@@ -4,7 +4,7 @@ export const mockCustomers: Customer[] = [
   {
     id: "cus-wang",
     name: "王女士",
-    memberLevel: "黑金会员",
+    memberLevel: "金刚",
     city: "上海",
     family: "夫妻 + 1个8岁孩子 + 父母",
     gmv: "¥268,000",
@@ -22,7 +22,7 @@ export const mockCustomers: Customer[] = [
   {
     id: "cus-zhang",
     name: "张总",
-    memberLevel: "SVIP",
+    memberLevel: "金刚",
     city: "杭州",
     family: "夫妻同行，偶尔企业家朋友小团",
     gmv: "¥486,000",
@@ -40,7 +40,7 @@ export const mockCustomers: Customer[] = [
   {
     id: "cus-chen",
     name: "陈先生",
-    memberLevel: "金卡会员",
+    memberLevel: "雪莲",
     city: "深圳",
     family: "夫妻 + 摄影朋友2人",
     gmv: "¥156,000",
@@ -57,7 +57,7 @@ export const mockCustomers: Customer[] = [
 ];
 
 export const followUpCustomers = [
-  { name: "张总", reason: "45天未维护，过去3年均在6月出行", level: "SVIP", action: "发送梅里雪山夏季私享内容" },
-  { name: "王女士", reason: "孩子暑假时间已确认，近期浏览梅里产品", level: "黑金会员", action: "推荐亲子自然探索方案" },
-  { name: "陈先生", reason: "国庆滇藏定制咨询后未报价", level: "金卡会员", action: "补充车辆与司导方案" },
+  { name: "张总", reason: "45天未维护，过去3年均在6月出行", level: "金刚", action: "发送梅里雪山夏季私享内容" },
+  { name: "王女士", reason: "孩子暑假时间已确认，近期浏览梅里产品", level: "金刚", action: "推荐亲子自然探索方案" },
+  { name: "陈先生", reason: "国庆滇藏定制咨询后未报价", level: "雪莲", action: "补充车辆与司导方案" },
 ];
