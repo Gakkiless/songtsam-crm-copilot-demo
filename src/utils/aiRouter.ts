@@ -47,7 +47,8 @@ function buildMaintenanceRecord(input: string, currentCustomer: Customer) {
   return {
     type: "maintenanceRecord",
     customerName: currentCustomer.name,
-    customerCode: currentCustomer.id.toUpperCase().replace("CUS-", "MD8000"),
+    customerCode: currentCustomer.memberCardNo,
+    memberPhone: currentCustomer.memberPhone,
     memberLevel: currentCustomer.memberLevel,
     recordType: "客户维护",
     maintenanceDate: "2026/05/07",
@@ -345,7 +346,7 @@ export function classifyIntent(input: string, currentCustomer: Customer = mockCu
       subIntent: "客户画像与历史订单",
       entities,
       response:
-        `${currentCustomer.name}是${currentCustomer.memberLevel}，历史消费${currentCustomer.gmv}。${currentCustomer.summary}`,
+        `${currentCustomer.name}是${currentCustomer.memberLevel}会员，历史消费金额￥${currentCustomer.gmv}。${currentCustomer.summary}`,
       workflowSteps: ["读取当前会话客户", "查询CRM画像", "汇总历史订单", "分析聊天关注点", "输出下一步动作"],
       cards: [{ type: "customer", ...currentCustomer }],
     };
