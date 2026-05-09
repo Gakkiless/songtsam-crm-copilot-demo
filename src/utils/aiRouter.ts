@@ -257,7 +257,7 @@ export function classifyIntent(input: string, currentCustomer: Customer = mockCu
     return {
       intent: "VIP到店交接",
       subIntent: "管家服务交接",
-      entities: { 客户等级: "SVIP", 到店酒店: "松赞梅里山居", 服务重点: ["欢迎卡", "晚餐偏好", "观景时间"] },
+      entities: { 客户等级: "金刚", 到店酒店: "松赞梅里山居", 服务重点: ["欢迎卡", "晚餐偏好", "观景时间"] },
       response:
         "我已整理VIP到店管家交接要点，重点是偏好同步、抵达体验和次日活动节奏，避免客户重复表达需求。",
       workflowSteps: ["读取VIP到店提醒", "汇总客户偏好", "生成管家交接项", "同步服务风险", "等待销售确认转交"],
