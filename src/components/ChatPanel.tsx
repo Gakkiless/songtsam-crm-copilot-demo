@@ -1,8 +1,10 @@
-import { AlertTriangle, Bell, Bot, CalendarClock, ChevronDown, CornerDownLeft, MessageSquareText, Mic, Send, UserRound, X } from "lucide-react";
+import { AlertTriangle, Bell, Bot, CalendarClock, ChevronDown, MessageSquareText, Mic, Send, UserRound, X } from "lucide-react";
+import { Button } from "antd-mobile";
 import { useEffect, useRef, useState } from "react";
 import { mockCustomers } from "../data/mockCustomers";
 import { classifyIntent } from "../utils/aiRouter";
 import ProductCard from "./ProductCard";
+import SalesJourneyFlow from "./SalesJourneyFlow";
 import type { Customer, Product, RouterResult } from "../types";
 
 type Message = {
@@ -23,12 +25,9 @@ type ChatSession = {
 
 const commandGroups = [
   { label: "看客户画像", prompt: "帮我看下这个客户的画像、标签和历史订单" },
-  { label: "推荐产品", prompt: "这个客户带父母和孩子，预算8万，不想太累，推荐一下" },
   { label: "查产品库存", prompt: "查6月梅里雪山产品团期库存和价格" },
   { label: "查酒店库存", prompt: "查松赞梅里山居6月18日雪山景观大床房库存和价格" },
   { label: "生成报价", prompt: "帮我做一个暑期亲子版本报价" },
-  { label: "记维护记录", prompt: "维护记录：今天和客户聊了暑期带孩子去梅里，预算8万左右，客户有点担心高反，希望先看轻松一点的方案，三天内再跟进" },
-  { label: "安排跟进", prompt: "最近应该维护哪些客户？" },
 ];
 
 function createWelcomeMessage(customer: Customer): Message {
@@ -43,6 +42,7 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
   const [input, setInput] = useState("");
   const [remindersOpen, setRemindersOpen] = useState(false);
   const [sessionSwitcherOpen, setSessionSwitcherOpen] = useState(false);
+  const [salesFlowOpen, setSalesFlowOpen] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState(mockCustomers[0].id);
   const [sessions, setSessions] = useState<ChatSession[]>(() =>
     mockCustomers.map((customer) => ({
@@ -133,6 +133,10 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
     }
   }
 
+  if (salesFlowOpen) {
+    return <SalesJourneyFlow customer={currentCustomer} onClose={() => setSalesFlowOpen(false)} />;
+  }
+
   return (
     <section className="songtsam-ai flex min-h-screen flex-col">
       <div className="sticky top-0 z-10 border-b border-snow bg-parchment/95 px-4 py-3 backdrop-blur">
@@ -148,11 +152,13 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h1 className="truncate text-base font-medium leading-6 text-cedar">用户关系助手</h1>
+                <h1 className="truncate text-base font-medium leading-6 text-cedar">
+                  {currentCustomer.name} · {currentCustomer.memberLevel}
+                </h1>
                 <ChevronDown size={15} className="shrink-0 text-[#808080]" />
               </div>
               <p className="truncate text-xs leading-[18px] text-[#808080]">
-                {currentCustomer.name} · {currentCustomer.memberLevel}
+                {currentCustomer.memberCardNo} · {currentCustomer.memberPhone}
               </p>
             </div>
           </button>
@@ -171,15 +177,21 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
       </div>
 
       <div className="grid grid-cols-4 gap-2 px-4 py-3">
+        <Button
+          color="primary"
+          onClick={() => setSalesFlowOpen(true)}
+          className="col-span-2 !min-h-8 !rounded-[4px] !border-copper !bg-copper !px-2 !py-1 !text-xs !font-medium !leading-[18px]"
+        >
+          开始沟通
+        </Button>
         {commandGroups.map((item) => (
-          <button
+          <Button
             key={item.label}
-            type="button"
             onClick={() => submit(item.prompt)}
-            className="min-h-8 rounded-[4px] border border-snow bg-parchment px-1 py-1 text-xs leading-[18px] text-[#44494d]"
+            className="!min-h-8 !rounded-[4px] !border-snow !bg-parchment !px-1 !py-1 !text-xs !leading-[18px] !text-[#44494d]"
           >
             {item.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -217,9 +229,6 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
           <button type="submit" className="songtsam-primary grid h-9 w-9 shrink-0 place-items-center">
             <Send size={18} />
           </button>
-        </div>
-        <div className="flex items-center gap-1 px-1 pb-0.5 text-[10px] leading-4 text-[#808080]">
-          <CornerDownLeft size={13} />模拟接口：/api/ai/chat
         </div>
       </form>
       {remindersOpen && <ReminderPanel currentCustomer={currentCustomer} onClose={() => setRemindersOpen(false)} onAsk={submit} />}
@@ -825,9 +834,10 @@ function CustomerInsightCard({ customer, onAsk }: { customer: Customer; onAsk: (
             会员卡号：{customer.memberCardNo} · 会员手机号：{customer.memberPhone}
           </p>
         </div>
-        <span className="rounded-full bg-copper/15 px-2.5 py-1 text-xs text-copper">
-          历史消费金额：￥{customer.gmv}
-        </span>
+        <div className="shrink-0 rounded-[8px] bg-copper/10 px-2.5 py-2 text-right">
+          <p className="text-[10px] leading-4 text-clay/55">历史消费</p>
+          <p className="whitespace-nowrap text-sm font-medium leading-5 text-copper">￥{customer.gmv}</p>
+        </div>
       </div>
       <p className="leading-relaxed text-clay/80">{customer.summary}</p>
       <div className="flex flex-wrap gap-2">
@@ -838,7 +848,11 @@ function CustomerInsightCard({ customer, onAsk }: { customer: Customer; onAsk: (
       <div className="space-y-2">
         {customer.orders.slice(0, 2).map((order) => (
           <div key={order.product} className="rounded-[16px] bg-linen px-3 py-2">
-            <div className="flex justify-between gap-2 text-xs"><strong>{order.year} · {order.product}</strong><span className="text-copper">{order.amount}</span></div>
+            <div className="flex justify-between gap-2 text-xs">
+              <strong>{order.year} · {order.product}</strong>
+              <span className="text-copper">{order.amount}</span>
+            </div>
+            <p className="mt-1 text-xs text-clay/55">出行时间：{order.tripDate}</p>
             <p className="mt-1 text-xs text-clay/65">{order.feedback}</p>
           </div>
         ))}

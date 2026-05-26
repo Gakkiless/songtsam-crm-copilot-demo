@@ -29,7 +29,7 @@ export type Customer = {
   status: string;
   tags: string[];
   summary: string;
-  orders: Array<{ year: string; product: string; amount: string; feedback: string }>;
+  orders: Array<{ year: string; tripDate: string; product: string; amount: string; feedback: string }>;
 };
 
 export type RouterResult = {
