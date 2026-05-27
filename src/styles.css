@@ -37,15 +37,15 @@ button {
 }
 
 .songtsam-ai {
-  --adm-color-primary: #a43127;
-  --adm-color-success: #336735;
-  --adm-color-warning: #db8900;
+  --adm-color-primary: #1677ff;
+  --adm-color-success: #52c41a;
+  --adm-color-warning: #faad14;
   --adm-font-family: "HarmonyOS Sans", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --brand-red: #a43127;
-  --brand-gold: #db8900;
-  --activate: #7c7251;
-  --green: #336735;
-  --functional: #004355;
+  --brand-red: #1677ff;
+  --brand-gold: #faad14;
+  --activate: #1677ff;
+  --green: #52c41a;
+  --functional: #1677ff;
   --text-main: #000;
   --text-secondary: #44494d;
   --text-gray: #808080;
@@ -64,18 +64,26 @@ button {
   padding: 16px;
 }
 
+.songtsam-ai .adm-button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
 .songtsam-ai .adm-tabs-tab {
   color: #808080;
   font-size: 13px;
 }
 
 .songtsam-ai .adm-tabs-tab-active {
-  color: #a43127;
+  color: #1677ff;
   font-weight: 500;
 }
 
 .songtsam-ai .adm-tabs-tab-line {
-  background: #a43127;
+  background: #1677ff;
 }
 
 .songtsam-ai .adm-selector {
@@ -84,11 +92,11 @@ button {
   --border-radius: 999px;
   --padding: 8px 12px;
   --color: #f8f8f8;
-  --checked-color: #a43127;
+  --checked-color: #1677ff;
   --text-color: #44494d;
   --checked-text-color: #ffffff;
   --border: 0.5px solid #eeeeee;
-  --checked-border: 0.5px solid #a43127;
+  --checked-border: 0.5px solid #1677ff;
 }
 
 .songtsam-ai .adm-text-area {
@@ -101,8 +109,8 @@ button {
 }
 
 .songtsam-warm-card {
-  background: #fff7ed;
-  border-color: rgba(164, 49, 39, 0.16) !important;
+  background: #f0f6ff;
+  border-color: rgba(22, 119, 255, 0.16) !important;
 }
 
 .songtsam-ai [class*="rounded-[14px]"],
@@ -129,7 +137,7 @@ button {
 }
 
 .songtsam-primary {
-  background: #a43127;
+  background: #1677ff;
   color: #fff;
   border-radius: 4px;
 }
@@ -143,24 +151,24 @@ button {
 
 .songtsam-outline {
   background: #fff;
-  color: #a43127;
-  border: 0.5px solid #a43127;
+  color: #1677ff;
+  border: 0.5px solid #1677ff;
   border-radius: 4px;
 }
 
 .songtsam-tag-red {
-  background: rgba(164, 49, 39, 0.12);
-  color: #a43127;
+  background: rgba(22, 119, 255, 0.12);
+  color: #1677ff;
 }
 
 .songtsam-tag-gold {
-  background: rgba(219, 137, 0, 0.12);
-  color: #db8900;
+  background: rgba(250, 173, 20, 0.12);
+  color: #faad14;
 }
 
 .songtsam-tag-green {
-  background: rgba(51, 103, 53, 0.12);
-  color: #336735;
+  background: rgba(82, 196, 26, 0.12);
+  color: #52c41a;
 }
 
 .theme-group-loading-bar {

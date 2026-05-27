@@ -8,9 +8,9 @@ export default {
         parchment: "#FFFFFF",
         clay: "#000000",
         cedar: "#000000",
-        copper: "#A43127",
+        copper: "#1677FF",
         snow: "#EEEEEE",
-        sage: "#7C7251",
+        sage: "#52C41A",
       },
       boxShadow: {
         songtsam: "0 8px 24px rgba(0, 0, 0, 0.06)",

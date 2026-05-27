@@ -2,10 +2,6 @@ import {
   ArrowLeft,
   Bot,
   Check,
-  ChevronDown,
-  Copy,
-  FileText,
-  MessageCircle,
   Mic,
   Plus,
   Save,
@@ -18,7 +14,7 @@ import { mockProducts } from "../data/mockProducts";
 import type { Customer, Product } from "../types";
 
 type StageKey = "pre" | "during" | "confirm" | "follow";
-type FollowPlan = { time: Date; method: string; content: string };
+type FollowPlan = { time: Date | null; method: string; content: string };
 
 type SalesJourneyFlowProps = {
   customer: Customer;
@@ -26,10 +22,10 @@ type SalesJourneyFlowProps = {
 };
 
 const stageItems: Array<{ key: StageKey; title: string }> = [
-  { key: "pre", title: "预判" },
+  { key: "pre", title: "沟通前" },
   { key: "during", title: "沟通中" },
-  { key: "confirm", title: "确认" },
-  { key: "follow", title: "跟进" },
+  { key: "confirm", title: "需求确认" },
+  { key: "follow", title: "跟进管理" },
 ];
 
 const tagDimensions = [
@@ -39,49 +35,82 @@ const tagDimensions = [
   { title: "行为信号", options: ["近期浏览梅里", "咨询暑期", "复购潜力", "等待报价", "预算明确", "高转化"] },
 ];
 
+const tagGroups: Record<string, string[]> = {
+  人群关系: ["亲子", "三代同游", "夫妻同行", "企业家", "摄影客", "银发同行", "独行", "朋友同行"],
+  旅行偏好: ["慢节奏", "酒店偏好", "雪山景观", "藏文化", "自然教育", "轻徒步", "放松度假", "深度体验"],
+  风险顾虑: ["怕高反", "带老人", "低龄儿童", "时间敏感", "不想换酒店", "不接受长车程", "首次高原", "高原经验", "需要教育"],
+  行为信号: ["近期浏览梅里", "咨询暑期", "复购潜力", "等待报价", "预算明确", "高转化", "等待方案", "预算待确认", "家庭决策", "高客单"],
+};
+
 const communicationMethods = ["企业微信", "电话沟通", "线下面谈", "到店沟通", "会员活动", "家庭群沟通", "其他"];
 
 const followMethods = ["企业微信", "电话回访", "线下面谈", "发送方案", "会员活动邀约", "管家协同"];
 
 const surveyQuestions = [
   {
-    id: "purpose",
-    title: "这次出行的主要目的是什么？",
+    id: "companions",
+    category: "现状探索",
+    title: "您会计划和谁一起来松赞？",
     options: [
-      { label: "亲子陪伴", tags: ["亲子", "自然教育"], intent: "暑期亲子旅行" },
-      { label: "放松度假", tags: ["慢节奏", "酒店偏好"], intent: "酒店度假" },
+      { label: "独自一人", tags: ["独行", "放松度假"], intent: "独处放松需求" },
+      { label: "夫妻同行", tags: ["夫妻同行", "慢节奏"], intent: "双人度假需求" },
+      { label: "家人同行", tags: ["亲子", "三代同游", "带老人"], intent: "家庭旅行需求" },
+      { label: "朋友结伴", tags: ["朋友同行", "轻徒步"], intent: "结伴体验需求" },
+    ],
+  },
+  {
+    id: "plateau",
+    category: "现状探索",
+    title: "您之前有没有来过高原地区？或者去过松赞？",
+    options: [
+      { label: "第一次高原", tags: ["首次高原", "怕高反"], intent: "海拔适应优先" },
+      { label: "去过高原", tags: ["高原经验", "轻徒步"], intent: "可接受标准体验" },
+      { label: "去过松赞", tags: ["复购潜力", "藏文化"], intent: "复购深化体验" },
+      { label: "不确定", tags: ["需要教育", "怕高反"], intent: "需要高反说明" },
+    ],
+  },
+  {
+    id: "reason",
+    category: "痛点挖掘",
+    title: "您最近是因为什么原因想出来走走了？",
+    options: [
+      { label: "工作压力大", tags: ["放松度假", "酒店偏好", "慢节奏"], intent: "身心放松需求" },
+      { label: "想换环境", tags: ["雪山景观", "自然教育"], intent: "景观疗愈需求" },
+      { label: "陪伴家人", tags: ["亲子", "三代同游"], intent: "家庭陪伴需求" },
+      { label: "纪念日旅行", tags: ["夫妻同行", "高客单"], intent: "仪式感定制需求" },
+    ],
+  },
+  {
+    id: "ideal",
+    category: "痛点挖掘",
+    title: "您理想中的旅行是什么样的？",
+    options: [
+      { label: "轻松度假", tags: ["慢节奏", "酒店偏好"], intent: "舒适酒店路线" },
+      { label: "深度体验", tags: ["藏文化", "深度体验"], intent: "文化深度路线" },
+      { label: "自然教育", tags: ["亲子", "自然教育"], intent: "亲子自然教育路线" },
       { label: "看雪山", tags: ["雪山景观", "怕高反"], intent: "梅里雪山方向" },
-      { label: "文化深度", tags: ["藏文化", "复购潜力"], intent: "深度文化体验" },
     ],
   },
   {
-    id: "pace",
-    title: "客户能接受的行程节奏？",
+    id: "impact",
+    category: "影响放大",
+    title: "您觉得一次真正让您印象深刻的旅行，会对您接下来有什么影响？",
     options: [
-      { label: "尽量轻松", tags: ["慢节奏", "不接受长车程"], intent: "低强度慢行" },
-      { label: "标准节奏", tags: ["轻徒步"], intent: "标准藏地体验" },
-      { label: "可以深度", tags: ["藏文化", "复购潜力"], intent: "深度定制" },
-      { label: "不想换酒店", tags: ["不想换酒店", "酒店偏好"], intent: "连住型方案" },
+      { label: "重新充电", tags: ["放松度假", "慢节奏"], intent: "疗愈恢复价值" },
+      { label: "增进亲子关系", tags: ["亲子", "自然教育"], intent: "家庭关系价值" },
+      { label: "打开孩子眼界", tags: ["自然教育", "藏文化"], intent: "教育成长价值" },
+      { label: "留下家庭记忆", tags: ["三代同游", "雪山景观"], intent: "家庭纪念价值" },
     ],
   },
   {
-    id: "risk",
-    title: "客户最担心什么？",
+    id: "value",
+    category: "价值引导",
+    title: "如果有一个行程既有文化深度又能放松身心，您觉得怎么样？",
     options: [
-      { label: "高反", tags: ["怕高反"], intent: "海拔适应优先" },
-      { label: "老人太累", tags: ["带老人", "慢节奏"], intent: "三代低强度" },
-      { label: "孩子无聊", tags: ["亲子", "自然教育"], intent: "亲子活动强化" },
-      { label: "车程太长", tags: ["不接受长车程"], intent: "短车程路线" },
-    ],
-  },
-  {
-    id: "budget",
-    title: "预算和决策状态？",
-    options: [
-      { label: "预算8万左右", tags: ["预算明确", "高转化"], intent: "可进入报价" },
-      { label: "先看方案", tags: ["咨询暑期"], intent: "先发产品内容" },
-      { label: "等待家人确认", tags: ["家庭决策"], intent: "补充亲子和老人信息" },
-      { label: "已接近预订", tags: ["高转化", "等待报价"], intent: "推进报价和房态" },
+      { label: "很适合", tags: ["藏文化", "慢节奏", "高转化"], intent: "可推进具体方案" },
+      { label: "想了解", tags: ["等待方案", "深度体验"], intent: "需要内容种草" },
+      { label: "看预算", tags: ["预算待确认"], intent: "需要价格锚定" },
+      { label: "家人确认", tags: ["家庭决策"], intent: "需要辅助决策材料" },
     ],
   },
 ];
@@ -92,15 +121,16 @@ export default function SalesJourneyFlow({ customer, onClose }: SalesJourneyFlow
   const [selectedProductIds, setSelectedProductIds] = useState(["meili-slow", "family-nature"]);
   const [communicationMethod, setCommunicationMethod] = useState("企业微信");
   const [answers, setAnswers] = useState<Record<string, string>>({
-    purpose: "亲子陪伴",
-    pace: "尽量轻松",
-    risk: "高反",
+    companions: "家人同行",
+    plateau: "第一次高原",
+    reason: "陪伴家人",
+    ideal: "轻松度假",
   });
   const [customerQuote, setCustomerQuote] = useState("客户明确表示不喜欢连续换酒店，希望老人和孩子都轻松一点。");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [methodPickerOpen, setMethodPickerOpen] = useState(false);
   const [followPlan, setFollowPlan] = useState<FollowPlan>({
-    time: new Date(2026, 4, 29, 10, 30),
+    time: null,
     method: "企业微信",
     content: "发送梅里轻奢慢行方案，并确认老人和孩子对高反的顾虑",
   });
@@ -113,13 +143,18 @@ export default function SalesJourneyFlow({ customer, onClose }: SalesJourneyFlow
     return Array.from(new Set(tags));
   }, [answers]);
 
-  const mergedTags = useMemo(() => Array.from(new Set([...manualTags, ...answerTags])), [answerTags, manualTags]);
+  const removedTags = useMemo(() => getRemovedTags(manualTags, answerTags), [answerTags, manualTags]);
+  const replacedTagChanges = useMemo(() => getReplacedTagChanges(manualTags, answerTags), [answerTags, manualTags]);
+  const mergedTags = useMemo(
+    () => Array.from(new Set([...manualTags.filter((tag) => !removedTags.includes(tag)), ...answerTags])),
+    [answerTags, manualTags, removedTags],
+  );
   const dynamicProducts = useMemo(() => rankProducts(mergedTags), [mergedTags]);
   const selectedProducts = useMemo(
     () => mockProducts.filter((product) => selectedProductIds.includes(product.id)),
     [selectedProductIds],
   );
-  const activeStageTitle = stageItems.find((stage) => stage.key === activeStage)?.title ?? "预判";
+  const activeStageTitle = stageItems.find((stage) => stage.key === activeStage)?.title ?? "沟通前";
 
   function toggleManualTag(tag: string) {
     setManualTags((current) => (current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]));
@@ -146,10 +181,6 @@ export default function SalesJourneyFlow({ customer, onClose }: SalesJourneyFlow
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h1 className="truncate text-base font-medium leading-6">{customer.name} · {customer.memberLevel}</h1>
-              <span className="flex items-center gap-1 rounded-[4px] bg-sage/10 px-1.5 py-0.5 text-[10px] leading-4 text-sage">
-                <i className="h-1.5 w-1.5 animate-pulse rounded-full bg-sage" />
-                AI分析
-              </span>
             </div>
             <p className="truncate text-xs leading-[18px] text-[#808080]">
               {customer.memberCardNo} · {activeStageTitle}
@@ -182,10 +213,16 @@ export default function SalesJourneyFlow({ customer, onClose }: SalesJourneyFlow
             setCommunicationMethod={setCommunicationMethod}
             answers={answers}
             setAnswers={setAnswers}
+            preTags={manualTags}
+            answerTags={answerTags}
+            removedTags={removedTags}
+            replacedTagChanges={replacedTagChanges}
             mergedTags={mergedTags}
             customerQuote={customerQuote}
             setCustomerQuote={setCustomerQuote}
             dynamicProducts={dynamicProducts}
+            selectedProductIds={selectedProductIds}
+            toggleProduct={toggleProduct}
           />
         )}
         {activeStage === "confirm" && (
@@ -217,7 +254,7 @@ export default function SalesJourneyFlow({ customer, onClose }: SalesJourneyFlow
       <JourneyActionBar
         activeStage={activeStage}
         setActiveStage={setActiveStage}
-        onSave={() => saveCurrentStage(activeStage === "pre" ? "已保存初步预判" : "已保存本次沟通")}
+        onSave={() => saveCurrentStage(activeStage === "pre" ? "已保存沟通前信息" : "已保存本次沟通")}
       />
     </section>
   );
@@ -259,7 +296,7 @@ function PreBriefStage({
       <Card className="songtsam-warm-card">
         <div className="flex items-center gap-2">
           <Sparkles size={18} className="text-copper" />
-          <h2 className="text-lg font-medium">AI需求预判</h2>
+          <h2 className="text-lg font-medium">AI沟通前分析</h2>
         </div>
         <p className="mt-3 text-sm leading-[24px] text-clay/85">
           AI判断客户属于高净值家庭型用户，本次大概率是暑期三代家庭旅行。沟通重点应放在酒店体验、车程节奏、孩子自然教育和海拔适应，不要一开始推荐高强度徒步。
@@ -323,21 +360,35 @@ function DuringStage({
   setCommunicationMethod,
   answers,
   setAnswers,
+  preTags,
+  answerTags,
+  removedTags,
+  replacedTagChanges,
   mergedTags,
   customerQuote,
   setCustomerQuote,
   dynamicProducts,
+  selectedProductIds,
+  toggleProduct,
 }: {
   customer: Customer;
   communicationMethod: string;
   setCommunicationMethod: (method: string) => void;
   answers: Record<string, string>;
   setAnswers: (answers: Record<string, string>) => void;
+  preTags: string[];
+  answerTags: string[];
+  removedTags: string[];
+  replacedTagChanges: Array<{ group: string; from: string[]; to: string[] }>;
   mergedTags: string[];
   customerQuote: string;
   setCustomerQuote: (value: string) => void;
   dynamicProducts: Product[];
+  selectedProductIds: string[];
+  toggleProduct: (id: string) => void;
 }) {
+  const addedTags = answerTags.filter((tag) => !preTags.includes(tag));
+
   return (
     <>
       <Card className="songtsam-mobile-card">
@@ -353,10 +404,20 @@ function DuringStage({
       </Card>
 
       <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="需求挖掘问卷" title="根据客户回答动态更新画像" />
-        <div className="mt-3 space-y-5">
+        <SectionTitle eyebrow="预判标签" title="沟通前带入的客户判断" />
+        <div className="mt-3 flex flex-wrap gap-2">
+          {preTags.map((tag) => (
+            <Tag key={tag} color="default" className="!rounded-[4px]">{tag}</Tag>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="songtsam-mobile-card">
+        <SectionTitle eyebrow="需求挖掘问卷" title="根据客户回答沉淀需求标签" />
+        <div className="mt-3 space-y-6">
           {surveyQuestions.map((question) => (
             <div key={question.id}>
+              <p className="mb-1 text-xs leading-[18px] text-copper">{question.category}</p>
               <p className="mb-2 text-sm font-medium leading-5">{question.title}</p>
               <Selector
                 showCheckMark={false}
@@ -366,7 +427,7 @@ function DuringStage({
               />
               {answers[question.id] && (
                 <p className="mt-2 rounded-[6px] bg-copper/10 px-2 py-1.5 text-xs leading-[18px] text-copper">
-                  AI已匹配：{question.options.find((option) => option.label === answers[question.id])?.intent}
+                  规则匹配：{question.options.find((option) => option.label === answers[question.id])?.intent}
                 </p>
               )}
             </div>
@@ -375,7 +436,91 @@ function DuringStage({
       </Card>
 
       <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="客户真实原话" title="保留长期画像依据" />
+        <SectionTitle eyebrow="标签映射结果" title="本轮沟通需求变化" />
+        <div className="mt-3 space-y-3">
+          <div>
+            <p className="mb-2 text-xs text-[#808080]">本轮新增/强化标签</p>
+            <div className="flex flex-wrap gap-2">
+              {(addedTags.length ? addedTags : answerTags).map((tag) => (
+                <Tag key={tag} color="success" className="!rounded-[4px]">{tag}</Tag>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-xs text-[#808080]">本轮取消/弱化标签</p>
+            <div className="flex flex-wrap gap-2">
+              {removedTags.length ? (
+                removedTags.map((tag) => (
+                  <Tag key={tag} color="default" className="!rounded-[4px]">{tag}</Tag>
+                ))
+              ) : (
+                <span className="text-xs leading-[22px] text-[#999]">暂无取消标签</span>
+              )}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-xs text-[#808080]">同维度标签替换</p>
+            <div className="space-y-2">
+              {replacedTagChanges.length ? (
+                replacedTagChanges.map((change) => (
+                  <div key={change.group} className="rounded-[6px] bg-linen px-2 py-2 text-xs leading-[18px] text-clay/80">
+                    <span className="text-[#808080]">{change.group}：</span>
+                    {change.from.join("、")} → <span className="text-copper">{change.to.join("、")}</span>
+                  </div>
+                ))
+              ) : (
+                <span className="text-xs leading-[22px] text-[#999]">暂无替换标签</span>
+              )}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-xs text-[#808080]">合并后本次沟通标签</p>
+            <div className="flex flex-wrap gap-2">
+              {mergedTags.map((tag) => (
+                <Tag key={tag} color="primary" className="!rounded-[4px]">{tag}</Tag>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="songtsam-mobile-card">
+        <div className="w-full text-left">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs text-copper">动态推荐</p>
+              <h2 className="mt-1 text-base font-medium">{dynamicProducts[0].name}</h2>
+            </div>
+            <Tag color="primary" className="!rounded-[4px]">{recommendScore(dynamicProducts[0], mergedTags)}%</Tag>
+          </div>
+          <p className="mt-2 text-xs leading-[18px] text-[#808080]">
+            根据当前回答和标签：{mergedTags.slice(0, 5).join("、")}。点击产品代表本轮沟通已推荐。
+          </p>
+          <div className="mt-3 space-y-2">
+            {dynamicProducts.slice(0, 3).map((product) => (
+              <button
+                key={product.id}
+                type="button"
+                onClick={() => toggleProduct(product.id)}
+                className={`flex w-full items-center justify-between rounded-[6px] border px-2 py-2 text-left ${
+                  selectedProductIds.includes(product.id) ? "border-copper bg-copper/10" : "border-transparent bg-linen"
+                }`}
+              >
+                <span className="min-w-0 flex-1 truncate text-xs">{product.name}</span>
+                <span className="ml-2 flex items-center gap-2 text-xs text-copper">
+                  {recommendScore(product, mergedTags)}%
+                  <span className={`grid h-5 w-5 place-items-center rounded-full ${selectedProductIds.includes(product.id) ? "bg-copper text-white" : "bg-white text-[#999]"}`}>
+                    {selectedProductIds.includes(product.id) ? <Check size={12} /> : <Plus size={12} />}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      <Card className="songtsam-mobile-card">
+        <SectionTitle eyebrow="客户真实原话" title="客户反馈" />
         <div className="mt-3 rounded-[8px] bg-linen p-2">
           <div className="mb-2 flex items-center justify-between px-1">
             <span className="text-xs text-[#808080]">可语音转文字后整理</span>
@@ -387,38 +532,6 @@ function DuringStage({
             rows={4}
             placeholder="记录客户原话，例如：客户明确表示不喜欢连续换酒店。"
           />
-        </div>
-      </Card>
-
-      <Card className="songtsam-mobile-card sticky bottom-[78px] z-20">
-        <button type="button" className="w-full text-left">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs text-copper">动态推荐</p>
-              <h2 className="mt-1 text-base font-medium">{dynamicProducts[0].name}</h2>
-            </div>
-            <Tag color="primary" className="!rounded-[4px]">{recommendScore(dynamicProducts[0], mergedTags)}%</Tag>
-          </div>
-          <p className="mt-2 text-xs leading-[18px] text-[#808080]">
-            根据当前回答和标签：{mergedTags.slice(0, 5).join("、")}
-          </p>
-          <div className="mt-3 space-y-2">
-            {dynamicProducts.slice(0, 3).map((product) => (
-              <div key={product.id} className="flex items-center justify-between rounded-[6px] bg-linen px-2 py-2">
-                <span className="min-w-0 flex-1 truncate text-xs">{product.name}</span>
-                <span className="ml-2 text-xs text-copper">{recommendScore(product, mergedTags)}%</span>
-              </div>
-            ))}
-          </div>
-        </button>
-      </Card>
-
-      <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="AI已更新标签" title="本轮沟通沉淀结果" />
-        <div className="mt-3 flex flex-wrap gap-2">
-          {mergedTags.map((tag) => (
-            <Tag key={tag} color="success" className="!rounded-[4px]">{tag}</Tag>
-          ))}
         </div>
       </Card>
     </>
@@ -472,7 +585,7 @@ function ConfirmStage({
       </Card>
 
       <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="最终推荐产品" title="本次建议推荐顺序" />
+        <SectionTitle eyebrow="最终推荐产品" title="沟通中已推荐的产品" />
         <div className="mt-3 space-y-2">
           {selectedProducts.map((product, index) => (
             <div key={product.id} className="flex gap-3 rounded-[8px] bg-linen p-3">
@@ -491,18 +604,30 @@ function ConfirmStage({
         <div className="mt-3 space-y-3">
           <button type="button" onClick={() => setDatePickerOpen(true)} className="flex w-full items-center justify-between rounded-[8px] bg-linen px-3 py-3 text-left">
             <span className="text-sm">跟进时间</span>
-            <span className="text-sm text-copper">{formatDateTime(followPlan.time)}</span>
+            <span className={followPlan.time ? "text-sm text-copper" : "text-sm text-[#999]"}>
+              {followPlan.time ? formatDateTime(followPlan.time) : "请选择跟进时间"}
+            </span>
           </button>
           <button type="button" onClick={() => setMethodPickerOpen(true)} className="flex w-full items-center justify-between rounded-[8px] bg-linen px-3 py-3 text-left">
             <span className="text-sm">跟进方式</span>
             <span className="text-sm text-copper">{followPlan.method}</span>
           </button>
-          <TextArea
-            value={followPlan.content}
-            onChange={(value) => setFollowPlan({ ...followPlan, content: value })}
-            rows={3}
-            placeholder="填写下次跟进内容"
-          />
+          <div className="rounded-[8px] bg-linen p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-medium leading-5">跟进内容</p>
+              <button type="button" aria-label="语音输入" className="inline-flex h-8 w-8 items-center justify-center rounded-[4px] bg-white text-copper">
+                <Mic size={14} />
+              </button>
+            </div>
+            <div className="rounded-[8px] bg-white p-2">
+              <TextArea
+                value={followPlan.content}
+                onChange={(value) => setFollowPlan({ ...followPlan, content: value })}
+                rows={4}
+                placeholder="例如：发送梅里轻奢慢行方案，并确认老人和孩子对高反的顾虑"
+              />
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -541,28 +666,70 @@ function FollowStage({
   followPlan: FollowPlan;
   communicationMethod: string;
 }) {
+  const currentFollowTime = followPlan.time ?? makeRelativeDate(0, 15, 30);
+  const followRecords = [
+    {
+      time: currentFollowTime,
+      items: [
+        { title: "本次沟通", detail: `${communicationMethod}，围绕${Object.values(answers).filter(Boolean).join("、")}完成需求确认。` },
+        { title: "标签变化", detail: tags.join("、") },
+        { title: "AI分析结果", detail: `${customer.name}适合慢节奏、酒店体验强、自然教育友好的家庭路线；需要规避高强度徒步和连续长车程。` },
+        { title: "推荐产品", detail: selectedProducts.map((product) => product.name).join("；") },
+        { title: "订单结果", detail: "暂无新增订单。当前跟进仍处于需求确认阶段，待销售发送方案后继续观察转化。" },
+        { title: "客户原话", detail: customerQuote || "未记录客户原话" },
+        {
+          title: "下次待办",
+          detail: `${followPlan.time ? formatDateTime(followPlan.time) : "未设置跟进时间"} · ${followPlan.method} · ${followPlan.content}`,
+        },
+      ],
+    },
+    {
+      time: makeRelativeDate(3, 10, 12),
+      items: [
+        { title: "沟通方式", detail: "企业微信" },
+        { title: "客户反馈", detail: "客户对梅里雪山方向有兴趣，但担心老人高反，希望先了解海拔和酒店连续入住安排。" },
+        { title: "标签变化", detail: "新增：怕高反、带老人、酒店偏好" },
+        { title: "推荐产品", detail: "香格里拉 - 梅里雪山 6天5晚；香格里拉亲子自然探索 5天4晚" },
+        { title: "订单结果", detail: "已生成报价单 Q20260524-018，推荐产品为香格里拉 - 梅里雪山 6天5晚，预估金额￥86,800，客户待家人确认。" },
+        { title: "下次待办", detail: "补充梅里轻奢慢行方案，并说明德钦段海拔适应建议。" },
+      ],
+    },
+    {
+      time: makeRelativeDate(7, 19, 20),
+      items: [
+        { title: "沟通方式", detail: "电话沟通" },
+        { title: "客户反馈", detail: "客户确认暑期有6天左右时间，预算约8万，家庭成员为夫妻、孩子和父母。" },
+        { title: "标签变化", detail: "新增：亲子、三代同游、预算明确、咨询暑期" },
+        { title: "AI分析结果", detail: "客户决策链较长，需要兼顾老人舒适度与孩子体验，适合先用轻松方案建立信任。" },
+        { title: "订单结果", detail: "产生咨询单 C20260520-062，关联推荐方向为梅里轻奢慢行，尚未进入报价。" },
+        { title: "下次待办", detail: "等待客户家庭成员确认具体出行日期。" },
+      ],
+    },
+    {
+      time: makeRelativeDate(16, 14, 8),
+      items: [
+        { title: "沟通方式", detail: "会员活动" },
+        { title: "客户反馈", detail: "客户参加松赞会员分享后，对雪山、在地文化和酒店景观产生兴趣。" },
+        { title: "标签变化", detail: "新增：雪山景观、藏文化、复购潜力" },
+        { title: "推荐产品", detail: "梅里轻奢慢行方向；香格里拉深度体验方向" },
+        { title: "订单结果", detail: "活动后7天内无新增订单，但客户浏览梅里相关内容3次，推荐方向被验证为有效兴趣。" },
+        { title: "下次待办", detail: "活动后一周内通过企微发送梅里内容，观察客户反馈。" },
+      ],
+    },
+  ];
+
   return (
     <>
-      <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="跟进管理与存档" title="本次销售留痕" />
-        <div className="mt-4 space-y-4">
-          <TimelineItem title="本次沟通" detail={`${communicationMethod}，围绕${Object.values(answers).filter(Boolean).join("、")}完成需求确认。`} />
-          <TimelineItem title="标签变化" detail={tags.join("、")} />
-          <TimelineItem title="AI分析结果" detail="客户适合慢节奏、酒店体验强、自然教育友好的家庭路线；需要规避高强度徒步和连续长车程。" />
-          <TimelineItem title="推荐产品" detail={selectedProducts.map((product) => product.name).join("；")} />
-          <TimelineItem title="客户原话" detail={customerQuote || "未记录客户原话"} />
-          <TimelineItem title="下次待办" detail={`${formatDateTime(followPlan.time)} · ${followPlan.method} · ${followPlan.content}`} />
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-2 gap-2">
-        <Button color="primary" className="!h-11 !rounded-[4px] !bg-copper !border-copper">
-          一键再次跟进
-        </Button>
-        <Button fill="outline" className="!h-11 !rounded-[4px] !border-copper !text-copper">
-          <Copy size={14} /> 复制总结
-        </Button>
-      </div>
+      {followRecords.map((record) => (
+        <Card key={record.time.toISOString()} className="songtsam-mobile-card">
+          <h2 className="text-lg font-medium leading-7">{formatFollowRecordTime(record.time)}跟进</h2>
+          <div className="mt-4 space-y-4">
+            {record.items.map((item) => (
+              <TimelineItem key={`${record.time.toISOString()}-${item.title}`} title={item.title} detail={item.detail} />
+            ))}
+          </div>
+        </Card>
+      ))}
     </>
   );
 }
@@ -577,13 +744,7 @@ function JourneyActionBar({
   onSave: () => void;
 }) {
   if (activeStage === "follow") {
-    return (
-      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[375px] -translate-x-1/2 border-t border-snow bg-parchment/96 px-4 py-3 shadow-songtsam backdrop-blur">
-        <Button block color="primary" className="!h-11 !rounded-[4px] !bg-copper !border-copper">
-          再次跟进
-        </Button>
-      </div>
-    );
+    return null;
   }
 
   const config = {
@@ -596,9 +757,12 @@ function JourneyActionBar({
     <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[375px] -translate-x-1/2 border-t border-snow bg-parchment/96 px-4 py-3 shadow-songtsam backdrop-blur">
       <div className="grid grid-cols-[1fr_1.4fr] gap-2">
         <Button onClick={onSave} className="!h-11 !rounded-[4px]">
-          <Save size={14} /> {config.secondary}
+          <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+            <Save size={14} />
+            <span>{config.secondary}</span>
+          </span>
         </Button>
-        <Button color="primary" onClick={() => setActiveStage(config.next)} className="!h-11 !rounded-[4px] !bg-copper !border-copper">
+        <Button color="primary" onClick={() => setActiveStage(config.next)} className="!h-11 !rounded-[4px]">
           {config.primary}
         </Button>
       </div>
@@ -684,7 +848,52 @@ function recommendScore(product: Product, tags: string[]) {
   return Math.max(42, Math.min(98, score));
 }
 
+function getRemovedTags(preTags: string[], answerTags: string[]) {
+  return preTags.filter((tag) => {
+    const group = getTagGroup(tag);
+    if (!group) return false;
+    const hasAnswerInSameGroup = answerTags.some((answerTag) => getTagGroup(answerTag) === group);
+    return hasAnswerInSameGroup && !answerTags.includes(tag);
+  });
+}
+
+function getReplacedTagChanges(preTags: string[], answerTags: string[]) {
+  return Object.entries(tagGroups)
+    .map(([group, groupTags]) => {
+      const from = preTags.filter((tag) => groupTags.includes(tag));
+      const to = answerTags.filter((tag) => groupTags.includes(tag));
+      const removed = from.filter((tag) => !to.includes(tag));
+      const added = to.filter((tag) => !from.includes(tag));
+      return { group, from: removed, to: added };
+    })
+    .filter((change) => change.from.length > 0 && change.to.length > 0);
+}
+
+function getTagGroup(tag: string) {
+  return Object.entries(tagGroups).find(([, tags]) => tags.includes(tag))?.[0];
+}
+
 function formatDateTime(date: Date) {
   const pad = (value: number) => String(value).padStart(2, "0");
   return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function makeRelativeDate(daysAgo: number, hour: number, minute: number) {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  date.setHours(hour, minute, 0, 0);
+  return date;
+}
+
+function formatFollowRecordTime(date: Date) {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfTarget = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const diffDays = Math.max(0, Math.floor((startOfToday - startOfTarget) / 86400000));
+  const pad = (value: number) => String(value).padStart(2, "0");
+  const time = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+
+  if (diffDays === 0) return `今天 ${time}`;
+  if (diffDays <= 10) return `${diffDays}天前`;
+  return `${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${time}`;
 }
