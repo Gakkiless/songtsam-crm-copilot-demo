@@ -1,4 +1,18 @@
-import { AlertTriangle, Bell, Bot, CalendarClock, ChevronDown, MessageSquareText, Mic, Send, UserRound, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  Bot,
+  CalendarClock,
+  ChevronDown,
+  ClipboardList,
+  History,
+  Menu,
+  MessageSquareText,
+  Mic,
+  Send,
+  UserRound,
+  X,
+} from "lucide-react";
 import { Button } from "antd-mobile";
 import { useEffect, useRef, useState } from "react";
 import { mockCustomers } from "../data/mockCustomers";
@@ -23,12 +37,77 @@ type ChatSession = {
   latestResult?: RouterResult;
 };
 
+type SidebarMenuKey = "profile" | "todo" | "history" | "assistant";
+
 const commandGroups = [
-  { label: "看客户画像", prompt: "帮我看下这个客户的画像、标签和历史订单" },
   { label: "查产品库存", prompt: "查6月梅里雪山产品团期库存和价格" },
   { label: "查酒店库存", prompt: "查松赞梅里山居6月18日雪山景观大床房库存和价格" },
   { label: "生成报价", prompt: "帮我做一个暑期亲子版本报价" },
 ];
+
+const sidebarMenuItems: Array<{ key: SidebarMenuKey; label: string; description: string }> = [
+  { key: "profile", label: "客户画像", description: "客户标签与画像摘要" },
+  { key: "todo", label: "我的待办", description: "跟进提醒与待办任务" },
+  { key: "history", label: "客史信息", description: "会员、消费和记录" },
+  { key: "assistant", label: "用户关系助手", description: "销售沟通业务流" },
+];
+
+const offlineActivityRecords = [
+  { title: "松赞影像展上海站", time: "2026-05-18 14:00", detail: "上海 · 西岸艺术中心下午场" },
+  { title: "梅里雪山摄影分享会", time: "2025-11-22 19:30", detail: "上海 · 静安会员中心晚场" },
+  { title: "亲子自然教育沙龙", time: "2025-08-10 15:00", detail: "杭州 · 良渚文化艺术中心周末场" },
+  { title: "松赞会员私享晚宴", time: "2024-12-18 19:00", detail: "上海 · 静安会员中心" },
+];
+
+const complaintRecords = [
+  { title: "无有效投诉", time: "2026-06-15", detail: "近12个月未记录正式投诉。" },
+  { title: "服务偏好提醒", time: "2024-07-17", detail: "客户反馈餐饮需要提前确认老人和孩子口味，已转为服务偏好。" },
+];
+
+function getReminderItems(currentCustomer: Customer) {
+  return [
+    {
+      type: "客户维护",
+      title: `${currentCustomer.name}需要跟进`,
+      detail: currentCustomer.status,
+      action: `生成${currentCustomer.name}的跟进话术`,
+      tone: "bg-copper/10 text-copper",
+      icon: CalendarClock,
+    },
+    {
+      type: "出行风险",
+      title: "梅里方向未来3天有降雪概率",
+      detail: "建议提前给6月梅里意向客户说明路况和高反准备。",
+      action: "生成梅里风险提醒话术",
+      tone: "bg-red-50 text-red-700",
+      icon: AlertTriangle,
+    },
+    {
+      type: "VIP到店",
+      title: "金刚会员今日抵达松赞梅里山居",
+      detail: "建议同步管家准备欢迎卡、晚餐偏好和次日观景时间。",
+      action: "生成管家交接要点",
+      tone: "bg-sage/12 text-sage",
+      icon: Bell,
+    },
+    {
+      type: "业绩完成",
+      title: "本月成交¥386,000，完成率72%",
+      detail: "距离月目标还差¥150,000，建议优先推进高转化客户报价和复购客户维护。",
+      action: "生成本周业绩冲刺清单",
+      tone: "bg-copper/10 text-copper",
+      icon: CalendarClock,
+    },
+    {
+      type: "集团线索",
+      title: "集团分配2条高净值新线索",
+      detail: "1条来自会员活动报名，1条来自梅里雪山定制咨询，建议15分钟内完成首次触达。",
+      action: "查看集团线索并生成首触话术",
+      tone: "bg-linen text-clay",
+      icon: UserRound,
+    },
+  ];
+}
 
 function createWelcomeMessage(customer: Customer): Message {
   return {
@@ -40,9 +119,10 @@ function createWelcomeMessage(customer: Customer): Message {
 
 export default function ChatPanel({ initialPrompt }: { initialPrompt?: string }) {
   const [input, setInput] = useState("");
-  const [remindersOpen, setRemindersOpen] = useState(false);
   const [sessionSwitcherOpen, setSessionSwitcherOpen] = useState(false);
   const [salesFlowOpen, setSalesFlowOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<SidebarMenuKey>("assistant");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState(mockCustomers[0].id);
   const [sessions, setSessions] = useState<ChatSession[]>(() =>
     mockCustomers.map((customer) => ({
@@ -81,6 +161,14 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
 
   function switchSession(sessionId: string) {
     setCurrentSessionId(sessionId);
+  }
+
+  function selectMenu(key: SidebarMenuKey) {
+    setActiveMenu(key);
+    setMenuOpen(false);
+    if (key !== "assistant") {
+      setSalesFlowOpen(false);
+    }
   }
 
   async function submit(value = input, targetSessionId = currentSessionId) {
@@ -134,7 +222,20 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
   }
 
   if (salesFlowOpen) {
-    return <SalesJourneyFlow customer={currentCustomer} onClose={() => setSalesFlowOpen(false)} />;
+    return (
+      <SalesJourneyFlow
+        customer={currentCustomer}
+        onClose={() => setSalesFlowOpen(false)}
+        headerAction={
+          <SidebarMenuButton
+            activeMenu={activeMenu}
+            open={menuOpen}
+            onToggle={() => setMenuOpen((current) => !current)}
+            onSelect={selectMenu}
+          />
+        }
+      />
+    );
   }
 
   return (
@@ -163,75 +264,79 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
             </div>
           </button>
           <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setRemindersOpen(true)}
-              className="relative grid h-10 w-10 place-items-center rounded-[4px] border border-white/10 bg-white/10 text-white"
-              aria-label="消息提醒"
+            <SidebarMenuButton
+              activeMenu={activeMenu}
+              open={menuOpen}
+              onToggle={() => setMenuOpen((current) => !current)}
+              onSelect={selectMenu}
+            />
+          </div>
+        </div>
+      </div>
+
+      {activeMenu === "assistant" && (
+        <>
+          <div className="grid grid-cols-3 gap-2 border-b border-snow bg-white px-5 py-4 shadow-sm">
+            <Button
+              color="primary"
+              onClick={() => setSalesFlowOpen(true)}
+              className="!min-h-10 !rounded-[12px] !border-copper !bg-copper !px-2 !py-1 !text-xs !font-semibold !leading-[18px]"
             >
-              <Bell size={18} />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-sage" />
-            </button>
+              开始沟通
+            </Button>
+            {commandGroups.map((item) => (
+              <Button
+                key={item.label}
+                onClick={() => submit(item.prompt)}
+                className="!min-h-10 !rounded-[12px] !border-snow !bg-linen !px-1 !py-1 !text-xs !font-medium !leading-[18px] !text-clay"
+              >
+                {item.label}
+              </Button>
+            ))}
           </div>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-4 gap-2 border-b border-snow bg-white px-5 py-4 shadow-sm">
-        <Button
-          color="primary"
-          onClick={() => setSalesFlowOpen(true)}
-          className="col-span-2 !min-h-10 !rounded-[12px] !border-copper !bg-copper !px-2 !py-1 !text-xs !font-semibold !leading-[18px]"
-        >
-          开始沟通
-        </Button>
-        {commandGroups.map((item) => (
-          <Button
-            key={item.label}
-            onClick={() => submit(item.prompt)}
-            className="!min-h-10 !rounded-[12px] !border-snow !bg-linen !px-1 !py-1 !text-xs !font-medium !leading-[18px] !text-clay"
+          <div className="flex-1 space-y-3 px-5 pb-4 pt-4">
+            {messages.map((message) => (
+              <MessageBubble key={message.id} message={message} onAsk={submit} />
+            ))}
+            {loading && (
+              <div className="flex items-center gap-2 text-sm text-clay/70">
+                <Bot size={18} className="text-copper" />
+                AI 正在识别意图并查询 Mock 数据...
+              </div>
+            )}
+            <div ref={scrollRef} />
+          </div>
+
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void submit();
+            }}
+            className="sticky bottom-0 z-20 border-t border-snow bg-white p-4 shadow-[0_-16px_40px_rgba(15,23,42,0.08)]"
           >
-            {item.label}
-          </Button>
-        ))}
-      </div>
+            <div className="flex items-end gap-2">
+              <button type="button" className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-linen text-copper" aria-label="语音输入">
+                <Mic size={18} />
+              </button>
+              <textarea
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                placeholder="描述客户需求、查询产品、生成报价..."
+                rows={2}
+                className="min-h-10 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm leading-[22px] text-cedar outline-none placeholder:text-clay/45"
+              />
+              <button type="submit" className="songtsam-primary grid h-10 w-10 shrink-0 place-items-center">
+                <Send size={18} />
+              </button>
+            </div>
+          </form>
+        </>
+      )}
 
-      <div className="flex-1 space-y-3 px-5 pb-4 pt-4">
-        {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} onAsk={submit} />
-        ))}
-        {loading && (
-          <div className="flex items-center gap-2 text-sm text-clay/70">
-            <Bot size={18} className="text-copper" />
-            AI 正在识别意图并查询 Mock 数据...
-          </div>
-        )}
-        <div ref={scrollRef} />
-      </div>
-
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void submit();
-        }}
-        className="sticky bottom-0 z-20 border-t border-snow bg-white p-4 shadow-[0_-16px_40px_rgba(15,23,42,0.08)]"
-      >
-        <div className="flex items-end gap-2">
-          <button type="button" className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-linen text-copper" aria-label="语音输入">
-            <Mic size={18} />
-          </button>
-          <textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder="描述客户需求、查询产品、生成报价..."
-            rows={2}
-            className="min-h-10 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm leading-[22px] text-cedar outline-none placeholder:text-clay/45"
-          />
-          <button type="submit" className="songtsam-primary grid h-10 w-10 shrink-0 place-items-center">
-            <Send size={18} />
-          </button>
-        </div>
-      </form>
-      {remindersOpen && <ReminderPanel currentCustomer={currentCustomer} onClose={() => setRemindersOpen(false)} onAsk={submit} />}
+      {activeMenu === "todo" && <TodoPage currentCustomer={currentCustomer} onAsk={submit} />}
+      {activeMenu === "profile" && <CustomerProfilePage customer={currentCustomer} onAsk={submit} />}
+      {activeMenu === "history" && <CustomerHistoryPage customer={currentCustomer} />}
       {sessionSwitcherOpen && (
         <SessionSwitcher
           sessions={sessions}
@@ -252,6 +357,58 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
       )}
       <IntentAnnotation result={latestResult} />
     </section>
+  );
+}
+
+function SidebarMenuButton({
+  activeMenu,
+  open,
+  onToggle,
+  onSelect,
+}: {
+  activeMenu: SidebarMenuKey;
+  open: boolean;
+  onToggle: () => void;
+  onSelect: (key: SidebarMenuKey) => void;
+}) {
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="grid h-10 w-10 place-items-center rounded-[4px] border border-white/10 bg-white/10 text-white"
+        aria-label="打开侧边栏菜单"
+      >
+        <Menu size={19} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-12 z-50 w-52 overflow-hidden rounded-[18px] border border-snow bg-white p-1.5 text-cedar shadow-songtsam">
+          {sidebarMenuItems.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => onSelect(item.key)}
+              className={`flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-left ${
+                activeMenu === item.key ? "bg-copper text-white" : "bg-white text-cedar hover:bg-linen"
+              }`}
+            >
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] bg-current/10">
+                {item.key === "profile" && <UserRound size={15} />}
+                {item.key === "todo" && <ClipboardList size={15} />}
+                {item.key === "history" && <History size={15} />}
+                {item.key === "assistant" && <MessageSquareText size={15} />}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold leading-5">{item.label}</span>
+                <span className={`block text-[11px] leading-4 ${activeMenu === item.key ? "text-white/70" : "text-clay/55"}`}>
+                  {item.description}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -320,6 +477,240 @@ function SessionSwitcher({
       </section>
     </div>
   );
+}
+
+function TodoPage({ currentCustomer, onAsk }: { currentCustomer: Customer; onAsk: (prompt: string) => void }) {
+  const reminders = getReminderItems(currentCustomer);
+  return (
+    <div className="flex-1 space-y-4 px-5 py-5">
+      <PageHeader eyebrow="我的待办" title="待办提醒" description="聚合当前客户、出行风险、到店交接和业绩推进事项。" />
+      <div className="space-y-3">
+        {reminders.map((item) => {
+          const Icon = item.icon;
+          return (
+            <article key={item.title} className="rounded-[18px] border border-snow bg-white p-4 shadow-sm">
+              <div className="flex gap-3">
+                <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-[16px] ${item.tone}`}>
+                  <Icon size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="rounded-full bg-linen px-2 py-1 text-[11px] text-clay">{item.type}</span>
+                  <h3 className="mt-2 font-semibold leading-snug text-cedar">{item.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-clay/70">{item.detail}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onAsk(item.action)}
+                className="mt-3 w-full rounded-[14px] bg-copper px-3 py-2 text-sm font-semibold text-white"
+              >
+                {item.action}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function CustomerProfilePage({ customer, onAsk }: { customer: Customer; onAsk: (prompt: string) => void }) {
+  const groups = [
+    { title: "身份信息", items: [...customer.profileChecklist.identity, ...customer.profileChecklist.residence] },
+    { title: "家庭与同行", items: customer.profileChecklist.household },
+    { title: "消费画像", items: customer.profileChecklist.consumption },
+    { title: "互动风险", items: customer.profileChecklist.interactionRisk },
+  ];
+  return (
+    <div className="flex-1 space-y-4 px-5 py-5">
+      <PageHeader eyebrow="客户画像" title={`${customer.name} · ${customer.memberLevel}`} description={customer.summary} />
+      <section className="rounded-[20px] border border-snow bg-white p-4 shadow-sm">
+        <div className="grid grid-cols-2 gap-2">
+          <ProfileMetric label="会员卡号" value={customer.memberCardNo} />
+          <ProfileMetric label="手机号" value={customer.memberPhone} />
+          <ProfileMetric label="常驻城市" value={customer.city} />
+          <ProfileMetric label="最近维护" value={customer.lastMaintenanceAt} />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {customer.tags.map((tag) => (
+            <span key={tag} className="rounded-full bg-sage/12 px-2.5 py-1 text-xs text-sage">{tag}</span>
+          ))}
+        </div>
+      </section>
+      {groups.map((group) => (
+        <section key={group.title} className="rounded-[20px] border border-snow bg-white p-4 shadow-sm">
+          <h3 className="text-base font-semibold leading-6 text-cedar">{group.title}</h3>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {group.items.map((item) => (
+              <ProfileMetric key={`${group.title}-${item.label}`} label={item.label} value={item.value} />
+            ))}
+          </div>
+        </section>
+      ))}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => onAsk(`为${customer.name}生成一段适合企微发送的跟进话术`)}
+          className="rounded-[14px] bg-copper px-3 py-2.5 text-xs font-semibold text-white"
+        >
+          生成跟进话术
+        </button>
+        <button
+          type="button"
+          onClick={() => onAsk(`帮我看下${customer.name}的历史订单和偏好`)}
+          className="rounded-[14px] border border-snow bg-white px-3 py-2.5 text-xs font-semibold text-copper"
+        >
+          分析历史偏好
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CustomerHistoryPage({ customer }: { customer: Customer }) {
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const currentYearOrders = customer.orders.filter((order) => order.year === "2026");
+  const paidOrders = customer.orders.filter((order) => order.amount !== "¥0");
+  const totalAmount = sumCurrency(customer.orders.map((order) => order.amount));
+  const currentYearAmount = currentYearOrders.length ? sumCurrency(currentYearOrders.map((order) => order.amount)) : Math.round(totalAmount * 0.32);
+  const destinations = Array.from(new Set(customer.orders.map((order) => extractDestination(order.product)).filter(Boolean)));
+  const historyMetrics = [
+    { label: "会员属性", value: customer.orders.length > 1 ? "老会员" : "新会员" },
+    { label: "客户属性", value: customer.orders.length > 0 ? "老客" : "新客" },
+    { label: "消费属性", value: paidOrders.length > 0 ? "已消费" : "未消费" },
+    { label: "本年消费频次", value: currentYearOrders.length > 1 ? "本年复购" : "本年首购" },
+    { label: "已出行目的地", value: destinations.join("、") || "暂无" },
+    { label: "当年下单金额", value: formatCurrency(currentYearAmount) },
+    { label: "当年出行金额", value: formatCurrency(Math.round(currentYearAmount * 0.82)) },
+    { label: "首购-复购间隔天数", value: customer.orders.length > 1 ? "263天" : "暂无复购" },
+    { label: "消费人数", value: getTravelPeopleCount(customer.family) },
+  ];
+  return (
+    <div className="flex-1 space-y-4 px-5 py-5">
+      <PageHeader eyebrow="客史信息" title={`${customer.name}的客史记录`} description="查看会员属性、消费属性、订单、活动与投诉记录。" />
+      <section className="rounded-[20px] border border-snow bg-white p-4 shadow-sm">
+        <div className="grid grid-cols-2 gap-2">
+          {historyMetrics.map((item) => (
+            <ProfileMetric key={item.label} label={item.label} value={item.value} />
+          ))}
+        </div>
+      </section>
+      <ExpandableRecordSection
+        title="订单记录"
+        expanded={Boolean(expandedSections.orders)}
+        onToggle={() => setExpandedSections((current) => ({ ...current, orders: !current.orders }))}
+        records={customer.orders.map((order) => ({
+          title: `${order.year} · ${order.product}`,
+          meta: `${order.tripDate} · ${order.amount}`,
+          detail: order.feedback,
+        }))}
+      />
+      <ExpandableRecordSection
+        title="线下活动记录"
+        expanded={Boolean(expandedSections.activities)}
+        onToggle={() => setExpandedSections((current) => ({ ...current, activities: !current.activities }))}
+        records={offlineActivityRecords.map((record) => ({
+          title: record.title,
+          meta: record.time,
+          detail: record.detail,
+        }))}
+      />
+      <ExpandableRecordSection
+        title="投诉记录"
+        expanded={Boolean(expandedSections.complaints)}
+        onToggle={() => setExpandedSections((current) => ({ ...current, complaints: !current.complaints }))}
+        records={complaintRecords.map((record) => ({
+          title: record.title,
+          meta: record.time,
+          detail: record.detail,
+        }))}
+      />
+    </div>
+  );
+}
+
+function PageHeader({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+  return (
+    <section className="rounded-[20px] border border-snow bg-white p-4 shadow-sm">
+      <p className="text-xs leading-[18px] text-copper">{eyebrow}</p>
+      <h2 className="mt-1 text-xl font-semibold leading-7 text-cedar">{title}</h2>
+      <p className="mt-2 text-sm leading-[22px] text-clay/70">{description}</p>
+    </section>
+  );
+}
+
+function ProfileMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[14px] border border-snow bg-linen px-3 py-2.5">
+      <p className="text-[11px] leading-4 text-clay/55">{label}</p>
+      <p className="mt-1 text-sm font-semibold leading-5 text-cedar">{value}</p>
+    </div>
+  );
+}
+
+function ExpandableRecordSection({
+  title,
+  records,
+  expanded,
+  onToggle,
+}: {
+  title: string;
+  records: Array<{ title: string; meta: string; detail: string }>;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const visibleRecords = expanded ? records : records.slice(0, 2);
+  return (
+    <section className="rounded-[20px] border border-snow bg-white p-4 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-base font-semibold leading-6 text-cedar">{title}</h3>
+        {records.length > 2 && (
+          <button type="button" onClick={onToggle} className="text-xs font-semibold leading-5 text-copper">
+            {expanded ? "收起" : "查看更多"}
+          </button>
+        )}
+      </div>
+      <div className="mt-3 space-y-2">
+        {visibleRecords.map((record) => (
+          <article key={`${title}-${record.title}-${record.meta}`} className="rounded-[16px] border border-snow bg-linen px-3 py-3">
+            <div className="flex items-start justify-between gap-2">
+              <h4 className="text-sm font-semibold leading-5 text-cedar">{record.title}</h4>
+              <span className="shrink-0 text-[11px] leading-4 text-clay/50">{record.meta}</span>
+            </div>
+            <p className="mt-1 text-xs leading-[18px] text-clay/70">{record.detail}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function sumCurrency(values: string[]) {
+  return values.reduce((total, value) => {
+    const amount = Number(value.replace(/[^\d.]/g, ""));
+    return Number.isFinite(amount) ? total + amount : total;
+  }, 0);
+}
+
+function formatCurrency(value: number) {
+  return `¥${Math.round(value).toLocaleString("zh-CN")}`;
+}
+
+function extractDestination(productName: string): string {
+  if (productName.includes("香格里拉")) return "香格里拉";
+  if (productName.includes("松赞林卡")) return "香格里拉";
+  if (productName.includes("梅里")) return "梅里雪山";
+  if (productName.includes("林芝") || productName.includes("波密")) return "林芝波密";
+  if (productName.includes("滇藏")) return "滇藏线";
+  if (productName.includes("亚丁")) return "亚丁";
+  return "";
+}
+
+function getTravelPeopleCount(family: string) {
+  if (family.includes("父母") && family.includes("孩子")) return "5人";
+  if (family.includes("朋友2人")) return "4人";
+  if (family.includes("夫妻")) return "2人";
+  return "1人";
 }
 
 function ReminderPanel({

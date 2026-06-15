@@ -13,6 +13,7 @@ import {
 import { Button, Card, DatePicker, Picker, Popup, Selector, Tabs, Tag, TextArea, Toast } from "antd-mobile";
 import type { PickerValue } from "antd-mobile/es/components/picker";
 import { AnimatePresence, motion } from "framer-motion";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { mockProducts } from "../data/mockProducts";
 import type { Customer, Product } from "../types";
@@ -61,6 +62,7 @@ type CommunicationPurpose = {
 type SalesJourneyFlowProps = {
   customer: Customer;
   onClose: () => void;
+  headerAction?: ReactNode;
 };
 
 const stageItems: Array<{ key: StageKey; title: string }> = [
@@ -518,7 +520,7 @@ const communicationConclusionActions: Record<string, string[]> = {
   强意向客户: ["推荐产品", "生成产品匹配结果"],
 };
 
-export default function SalesJourneyFlow({ customer, onClose }: SalesJourneyFlowProps) {
+export default function SalesJourneyFlow({ customer, onClose, headerAction }: SalesJourneyFlowProps) {
   const [activeStage, setActiveStage] = useState<StageKey>("pre");
   const [manualTags, setManualTags] = useState<string[]>([]);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
@@ -643,6 +645,7 @@ export default function SalesJourneyFlow({ customer, onClose }: SalesJourneyFlow
               近期维护 {customer.lastMaintenanceAt}
             </p>
           </div>
+          {headerAction}
         </div>
         <div className="mt-4 rounded-[18px] bg-white px-2 py-1 shadow-soft">
           <Tabs activeKey={activeStage} onChange={(key) => handleStageChange(key as StageKey)}>
