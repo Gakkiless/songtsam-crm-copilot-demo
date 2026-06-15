@@ -12,7 +12,7 @@ const tabs: Array<{ key: TabKey; label: string; icon: ComponentType<{ size?: num
 
 export default function BottomTab({ current, onChange }: { current: TabKey; onChange: (tab: TabKey) => void }) {
   return (
-    <nav className="fixed bottom-0 left-1/2 z-30 grid w-full max-w-[430px] -translate-x-1/2 grid-cols-5 border-t border-clay/10 bg-parchment/95 px-2 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-12px_34px_rgba(62,42,32,0.08)] backdrop-blur">
+    <nav className="fixed bottom-0 left-1/2 z-30 grid w-full max-w-[430px] -translate-x-1/2 grid-cols-5 border-t border-snow bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-16px_40px_rgba(15,23,42,0.08)] backdrop-blur">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const active = current === tab.key;
@@ -22,7 +22,7 @@ export default function BottomTab({ current, onChange }: { current: TabKey; onCh
             type="button"
             onClick={() => onChange(tab.key)}
             className={`flex flex-col items-center gap-1 rounded-[20px] py-2 text-[11px] transition ${
-              active ? "bg-clay text-parchment" : "text-clay/65"
+              active ? "bg-copper text-white" : "text-clay"
             }`}
             aria-label={tab.label}
           >

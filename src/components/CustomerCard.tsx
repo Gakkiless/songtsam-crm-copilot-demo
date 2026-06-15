@@ -4,7 +4,7 @@ import type { Customer } from "../types";
 
 export default function CustomerCard({ customer }: { customer: Customer }) {
   return (
-    <section className="rounded-[20px] border border-clay/10 bg-parchment p-5 shadow-songtsam">
+    <section className="rounded-[20px] border border-snow bg-white p-5 shadow-songtsam">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs text-copper">当前客户</p>
@@ -38,7 +38,7 @@ function Info({
   wide?: boolean;
 }) {
   return (
-    <div className={`rounded-[18px] bg-white/55 p-3 ${wide ? "col-span-2" : ""}`}>
+    <div className={`rounded-[14px] border border-snow bg-linen p-3 ${wide ? "col-span-2" : ""}`}>
       <div className="mb-1 flex items-center gap-1.5 text-xs text-copper"><Icon size={14} />{label}</div>
       <p className="text-sm font-medium leading-relaxed text-cedar">{value}</p>
     </div>

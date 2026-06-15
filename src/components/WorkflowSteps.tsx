@@ -7,7 +7,7 @@ export default function WorkflowSteps({ steps, activeCount }: { steps: string[];
       {steps.slice(0, visibleCount).map((step, index) => {
         const done = index < visibleCount - 1 || visibleCount === steps.length;
         return (
-          <div key={step} className="flex items-center gap-3 rounded-[20px] border border-clay/10 bg-white/55 px-3 py-2">
+          <div key={step} className="flex items-center gap-3 rounded-[16px] border border-snow bg-white px-3 py-2 shadow-sm">
             <span className={`grid h-7 w-7 place-items-center rounded-full ${done ? "bg-sage text-white" : "bg-copper/15 text-copper"}`}>
               {done ? <Check size={15} /> : <Loader2 className="animate-spin" size={15} />}
             </span>

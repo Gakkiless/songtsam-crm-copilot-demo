@@ -5,6 +5,7 @@ export type Product = {
   name: string;
   duration: string;
   audience: string[];
+  productTags: string[];
   priceRange: string;
   hotels: string;
   vehicle: string;
@@ -14,6 +15,21 @@ export type Product = {
   notFor: string[];
   route: string;
   reason: string;
+  imageUrl: string;
+};
+
+export type ProfileField = {
+  label: string;
+  value: string;
+};
+
+export type ProfileChecklist = {
+  identity: ProfileField[];
+  household: ProfileField[];
+  consumption: ProfileField[];
+  onlineBehavior: ProfileField[];
+  interactionRisk: ProfileField[];
+  residence: ProfileField[];
 };
 
 export type Customer = {
@@ -26,8 +42,10 @@ export type Customer = {
   family: string;
   gmv: string;
   lastTrip: string;
+  lastMaintenanceAt: string;
   status: string;
   tags: string[];
+  profileChecklist: ProfileChecklist;
   summary: string;
   orders: Array<{ year: string; tripDate: string; product: string; amount: string; feedback: string }>;
 };

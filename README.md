@@ -1,32 +1,26 @@
-# 松赞用户关系助手 Demo
+# 松赞用户关系助手
 
-Songtsam CRM Copilot 是一个移动端 H5 Demo，用于演示销售通过自然语言完成客户维护、提醒处理、客户分析、产品咨询和报价辅助。
+内部销售辅助工具，用于客户维护记录、客户画像、产品推荐、报价草稿和跟进话术等场景的前端 demo。
 
-## 技术栈
-
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-
-## 本地启动
+## 运行
 
 ```bash
 npm install
 npm run dev
 ```
 
-## 构建
+访问 Vite 输出的本地地址，通常是 `http://127.0.0.1:5173/`。
+
+如需启动本地 AI/BFF 服务：
 
 ```bash
-npm run build
+npm run server
 ```
 
-构建产物输出到 `dist/`，可部署到 Vercel、Netlify 或任意静态网站托管服务。
+## 目录
 
-## Demo 说明
-
-- 全部数据为 Mock 数据
-- 不依赖真实 AI API
-- 不依赖真实 CRM / 企业微信接口
-- 已预留后续接口接入位置
+- `src/`：用户关系助手 React 前端
+- `assets/`：用户关系助手视觉资源
+- `little-dorje/`：小多吉相关项目
+- `ai-server.mjs`：可选的本地 AI/BFF 服务
+- `knowledge-base.mjs`：本地产品知识库

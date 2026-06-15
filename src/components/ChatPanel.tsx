@@ -138,26 +138,26 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
   }
 
   return (
-    <section className="songtsam-ai flex min-h-screen flex-col">
-      <div className="sticky top-0 z-10 border-b border-snow bg-parchment/95 px-4 py-3 backdrop-blur">
+    <section className="songtsam-ai flex min-h-screen flex-col bg-linen">
+      <div className="sticky top-0 z-10 bg-copper px-5 py-4 text-white shadow-[0_16px_40px_rgba(15,23,42,0.18)]">
         <div className="flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => setSessionSwitcherOpen(true)}
-            className="flex min-w-0 flex-1 items-center gap-2 rounded-[4px] text-left"
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-[4px] text-left"
             aria-label="切换客户会话"
           >
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[4px] bg-linen text-copper">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[4px] bg-white/10 text-white ring-1 ring-white/10">
               <MessageSquareText size={17} />
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h1 className="truncate text-base font-medium leading-6 text-cedar">
+                <h1 className="truncate text-base font-semibold leading-6 text-white">
                   {currentCustomer.name} · {currentCustomer.memberLevel}
                 </h1>
-                <ChevronDown size={15} className="shrink-0 text-[#808080]" />
+                <ChevronDown size={15} className="shrink-0 text-white/55" />
               </div>
-              <p className="truncate text-xs leading-[18px] text-[#808080]">
+              <p className="truncate text-xs leading-[18px] text-white/65">
                 {currentCustomer.memberCardNo} · {currentCustomer.memberPhone}
               </p>
             </div>
@@ -166,7 +166,7 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
             <button
               type="button"
               onClick={() => setRemindersOpen(true)}
-              className="relative grid h-8 w-8 place-items-center rounded-[4px] border border-snow bg-parchment text-copper"
+              className="relative grid h-10 w-10 place-items-center rounded-[4px] border border-white/10 bg-white/10 text-white"
               aria-label="消息提醒"
             >
               <Bell size={18} />
@@ -176,11 +176,11 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 px-4 py-3">
+      <div className="grid grid-cols-4 gap-2 border-b border-snow bg-white px-5 py-4 shadow-sm">
         <Button
           color="primary"
           onClick={() => setSalesFlowOpen(true)}
-          className="col-span-2 !min-h-8 !rounded-[4px] !border-copper !bg-copper !px-2 !py-1 !text-xs !font-medium !leading-[18px]"
+          className="col-span-2 !min-h-10 !rounded-[12px] !border-copper !bg-copper !px-2 !py-1 !text-xs !font-semibold !leading-[18px]"
         >
           开始沟通
         </Button>
@@ -188,14 +188,14 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
           <Button
             key={item.label}
             onClick={() => submit(item.prompt)}
-            className="!min-h-8 !rounded-[4px] !border-snow !bg-parchment !px-1 !py-1 !text-xs !leading-[18px] !text-[#44494d]"
+            className="!min-h-10 !rounded-[12px] !border-snow !bg-linen !px-1 !py-1 !text-xs !font-medium !leading-[18px] !text-clay"
           >
             {item.label}
           </Button>
         ))}
       </div>
 
-      <div className="flex-1 space-y-3 px-4 pb-3">
+      <div className="flex-1 space-y-3 px-5 pb-4 pt-4">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} onAsk={submit} />
         ))}
@@ -213,10 +213,10 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
           event.preventDefault();
           void submit();
         }}
-        className="sticky bottom-0 z-20 border-t border-snow bg-parchment p-3 shadow-songtsam"
+        className="sticky bottom-0 z-20 border-t border-snow bg-white p-4 shadow-[0_-16px_40px_rgba(15,23,42,0.08)]"
       >
         <div className="flex items-end gap-2">
-          <button type="button" className="grid h-9 w-9 shrink-0 place-items-center rounded-[4px] bg-linen text-copper" aria-label="语音输入">
+          <button type="button" className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-linen text-copper" aria-label="语音输入">
             <Mic size={18} />
           </button>
           <textarea
@@ -224,9 +224,9 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
             onChange={(event) => setInput(event.target.value)}
             placeholder="描述客户需求、查询产品、生成报价..."
             rows={2}
-            className="min-h-10 flex-1 resize-none bg-transparent px-1 py-1.5 text-sm leading-[22px] text-cedar outline-none placeholder:text-clay/35"
+            className="min-h-10 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm leading-[22px] text-cedar outline-none placeholder:text-clay/45"
           />
-          <button type="submit" className="songtsam-primary grid h-9 w-9 shrink-0 place-items-center">
+          <button type="submit" className="songtsam-primary grid h-10 w-10 shrink-0 place-items-center">
             <Send size={18} />
           </button>
         </div>
@@ -269,24 +269,24 @@ function SessionSwitcher({
   onAnalyze: (sessionId: string) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-40 bg-cedar/28 px-4 pb-4 pt-16 backdrop-blur-sm">
-      <section className="mx-auto w-full max-w-[430px] rounded-[12px] bg-parchment p-4 shadow-songtsam">
+    <div className="fixed inset-0 z-40 bg-cedar/45 px-4 pb-4 pt-16 backdrop-blur-sm">
+      <section className="mx-auto w-full max-w-[430px] rounded-[20px] bg-white p-4 shadow-songtsam">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs leading-[18px] text-copper">客户会话</p>
             <h2 className="mt-1 text-xl font-medium leading-7 text-cedar">切换会话</h2>
             <p className="mt-1 text-sm leading-[22px] text-[#808080]">每个客户独立上下文，维护记录不会串到其他客户。</p>
           </div>
-          <button type="button" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-[4px] bg-linen text-clay" aria-label="关闭切换客户">
+          <button type="button" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-[12px] bg-linen text-clay" aria-label="关闭切换客户">
             <X size={18} />
           </button>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 min-[620px]:grid-cols-2">
         {sessions.map((session) => {
           const item = session.customer;
           const lastMessage = session.messages[session.messages.length - 1];
           return (
-          <article key={item.id} className={`rounded-[8px] border p-3 ${item.id === currentSessionId ? "border-copper bg-copper/5" : "border-snow bg-white"}`}>
+          <article key={item.id} className={`rounded-[16px] border p-3 ${item.id === currentSessionId ? "border-copper bg-slate-50" : "border-snow bg-white"}`}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="font-medium leading-6 text-cedar">{item.name} · {item.memberLevel}</h3>
@@ -295,9 +295,9 @@ function SessionSwitcher({
                 </p>
                 <p className="mt-0.5 text-xs leading-[18px] text-[#808080]">{item.family}</p>
               </div>
-              {item.id === currentSessionId && <span className="shrink-0 rounded-[4px] bg-copper px-2 py-1 text-[11px] leading-4 text-parchment">当前</span>}
+              {item.id === currentSessionId && <span className="shrink-0 rounded-[10px] bg-copper px-2 py-1 text-[11px] leading-4 text-white">当前</span>}
             </div>
-            <p className="mt-2 line-clamp-2 rounded-[4px] bg-linen px-2 py-1.5 text-xs leading-[18px] text-[#44494d]">
+            <p className="mt-2 line-clamp-2 rounded-[12px] bg-linen px-2 py-1.5 text-xs leading-[18px] text-slate-600">
               {lastMessage?.role === "user" ? "销售：" : "AI："}{lastMessage?.text ?? "暂无消息"}
             </p>
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -375,30 +375,30 @@ function ReminderPanel({
   ];
 
   return (
-    <div className="fixed inset-0 z-40 bg-cedar/28 px-4 pb-4 pt-24 backdrop-blur-sm">
-      <section className="mx-auto max-h-[78vh] w-full max-w-[430px] overflow-auto rounded-[24px] bg-parchment p-4 shadow-songtsam">
+    <div className="fixed inset-0 z-40 bg-cedar/45 px-4 pb-4 pt-24 backdrop-blur-sm">
+      <section className="mx-auto max-h-[78vh] w-full max-w-[430px] overflow-auto rounded-[20px] bg-white p-4 shadow-songtsam">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-copper">Reminder Agent</p>
             <h2 className="mt-1 text-xl font-semibold text-cedar">提醒中心</h2>
             <p className="mt-1 text-sm text-clay/65">点击任一动作，会回到对话里生成可发送内容。</p>
           </div>
-          <button type="button" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-[15px] bg-linen text-clay" aria-label="关闭提醒">
+          <button type="button" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-[12px] bg-linen text-clay" aria-label="关闭提醒">
             <X size={18} />
           </button>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 min-[620px]:grid-cols-2">
           {reminders.map((item) => {
             const Icon = item.icon;
             return (
-              <article key={item.title} className="rounded-[20px] border border-clay/10 bg-white/65 p-3">
+              <article key={item.title} className="rounded-[18px] border border-snow bg-white p-3 shadow-sm">
                 <div className="flex gap-3">
                   <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-[16px] ${item.tone}`}>
                     <Icon size={18} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="rounded-full bg-linen px-2 py-1 text-[11px] text-clay/65">{item.type}</span>
+                    <span className="rounded-full bg-linen px-2 py-1 text-[11px] text-clay">{item.type}</span>
                     <h3 className="mt-2 font-semibold leading-snug text-cedar">{item.title}</h3>
                     <p className="mt-1 text-sm leading-relaxed text-clay/70">{item.detail}</p>
                   </div>
@@ -409,7 +409,7 @@ function ReminderPanel({
                     onClose();
                     onAsk(item.action);
                   }}
-                  className="mt-3 w-full rounded-[16px] bg-clay px-3 py-2 text-sm font-medium text-parchment"
+                  className="mt-3 w-full rounded-[14px] bg-copper px-3 py-2 text-sm font-semibold text-white"
                 >
                   {item.action}
                 </button>
@@ -427,7 +427,9 @@ function MessageBubble({ message, onAsk }: { message: Message; onAsk: (prompt: s
   return (
     <article className={`flex gap-2 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && <Avatar icon="bot" />}
-      <div className={`max-w-[88%] border px-3 py-2 ${isUser ? "border-clay bg-clay text-parchment" : "border-snow bg-parchment text-cedar"}`}>
+      <div className={`max-w-[88%] rounded-[18px] border px-3 py-2 shadow-sm ${
+        isUser ? "border-copper bg-copper text-white" : "border-snow bg-white text-cedar"
+      }`}>
         <p className="whitespace-pre-wrap text-sm leading-[22px]">{message.text}</p>
         {message.result && message.text === message.result.response && (
           <div className="mt-4 space-y-3">
@@ -443,7 +445,7 @@ function MessageBubble({ message, onAsk }: { message: Message; onAsk: (prompt: s
 
 function Avatar({ icon }: { icon: "bot" | "user" }) {
   return (
-    <div className="grid h-7 w-7 shrink-0 place-items-center rounded-[4px] bg-parchment text-copper ring-1 ring-snow">
+    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[12px] bg-white text-copper ring-1 ring-snow">
       {icon === "bot" ? <Bot size={17} /> : <UserRound size={17} />}
     </div>
   );
@@ -452,7 +454,7 @@ function Avatar({ icon }: { icon: "bot" | "user" }) {
 function IntentAnnotation({ result }: { result?: RouterResult }) {
   if (!result) return null;
   return (
-    <aside className="pointer-events-none fixed left-[calc(50%+236px)] top-28 hidden w-56 rounded-[18px] border border-copper/20 bg-parchment/95 p-3 text-xs text-clay shadow-soft min-[900px]:block">
+    <aside className="pointer-events-none fixed left-[calc(50%+236px)] top-28 hidden w-56 rounded-[18px] border border-snow bg-white/95 p-3 text-xs text-clay shadow-soft min-[900px]:block">
       <p className="font-semibold text-copper">AI意图标注</p>
       <p className="mt-2 text-cedar">{result.intent}</p>
       <p className="mt-1 text-clay/65">{result.subIntent}</p>
@@ -465,7 +467,7 @@ function CompactWorkflow({ steps, activeCount }: { steps: string[]; activeCount?
   const visibleCount = activeCount ?? steps.length;
   const complete = visibleCount >= steps.length;
   return (
-    <div className="border border-snow bg-linen px-2.5 py-1.5">
+    <div className="rounded-[14px] border border-snow bg-linen px-2.5 py-1.5">
       <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between gap-3 text-left">
         <span className="text-xs leading-[18px] text-clay/55">
           {complete ? `AI已完成 ${steps.length} 步思考` : `AI正在处理 ${visibleCount}/${steps.length}`}
@@ -522,7 +524,7 @@ function ResultCards({ result, onAsk }: { result: RouterResult; onAsk: (prompt: 
     return (
       <div className="space-y-2">
         {result.cards.map((card) => (
-          <div key={String(card.name)} className="rounded-[18px] bg-white/70 p-3 text-sm text-clay/80">
+          <div key={String(card.name)} className="rounded-[18px] border border-snow bg-white p-3 text-sm text-clay/80 shadow-sm">
             <div className="flex items-center justify-between">
               <strong className="text-cedar">{String(card.name)}</strong>
               <span className="rounded-full bg-copper/15 px-2 py-1 text-xs text-copper">{String(card.level)}</span>
@@ -548,8 +550,8 @@ function MaintenanceRecordCard({ card, onAsk }: { card: Record<string, unknown>;
   const tags = card.tags as string[];
   const [confirmed, setConfirmed] = useState(false);
   return (
-    <div className="space-y-3 rounded-[18px] bg-white/70 p-3 text-sm">
-      <div className="rounded-[18px] border border-sage/30 bg-sage/10 p-3">
+    <div className="space-y-3 rounded-[18px] border border-snow bg-white p-3 text-sm shadow-sm">
+      <div className="rounded-[18px] border border-emerald-100 bg-emerald-50 p-3">
         <div className="flex items-center gap-3">
           <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#1f8bff] text-lg font-semibold text-white">
             {String(card.customerName).slice(0, 1)}
@@ -580,12 +582,12 @@ function MaintenanceRecordCard({ card, onAsk }: { card: Record<string, unknown>;
 
       <div>
         <p className="mb-2 text-sm font-semibold text-cedar">客户反馈 <span className="text-red-500">*</span></p>
-        <div className="min-h-24 rounded-[16px] border border-clay/10 bg-linen px-3 py-3 text-sm leading-relaxed text-cedar">
+        <div className="min-h-24 rounded-[16px] border border-snow bg-linen px-3 py-3 text-sm leading-relaxed text-cedar">
           {String(card.customerFeedback)}
         </div>
       </div>
 
-      <div className="border-t border-dashed border-clay/15 pt-3">
+      <div className="border-t border-dashed border-snow pt-3">
         <p className="mb-3 text-sm font-semibold text-cedar">出行需求信息</p>
         <div className="grid grid-cols-2 gap-2">
           <FormField label="出行时节" value={String(card.travelSeason)} />
@@ -615,12 +617,12 @@ function MaintenanceRecordCard({ card, onAsk }: { card: Record<string, unknown>;
         ))}
       </div>
 
-      <div className="rounded-[18px] border border-copper/25 bg-[#fff6e6] p-3">
+      <div className="rounded-[18px] border border-amber-200 bg-amber-50 p-3">
         <p className="mb-3 text-sm font-semibold text-cedar">提醒事项</p>
         <FormField label="提醒日期" required value={String(card.reminderDate)} />
         <div className="mt-2">
           <p className="mb-2 text-xs text-clay/60">提醒事项 <span className="text-red-500">*</span></p>
-          <div className="min-h-16 rounded-[14px] border border-copper/15 bg-white/70 px-3 py-2 text-sm leading-relaxed text-cedar">
+          <div className="min-h-16 rounded-[14px] border border-amber-200 bg-white px-3 py-2 text-sm leading-relaxed text-cedar">
             {String(card.reminderItem)}
           </div>
         </div>
@@ -630,14 +632,14 @@ function MaintenanceRecordCard({ card, onAsk }: { card: Record<string, unknown>;
         <button
           type="button"
           onClick={() => setConfirmed(true)}
-          className="rounded-[16px] bg-clay px-3 py-2 text-xs font-medium text-parchment"
+          className="rounded-[14px] bg-copper px-3 py-2 text-xs font-semibold text-white"
         >
           {confirmed ? "已维护到客户记录" : "确认维护到客户记录"}
         </button>
         <button
           type="button"
           onClick={() => onAsk(`基于这条维护记录，为${String(card.customerName)}生成下一次跟进话术`)}
-          className="rounded-[16px] border border-copper/25 px-3 py-2 text-xs font-medium text-copper"
+          className="rounded-[14px] border border-snow px-3 py-2 text-xs font-semibold text-copper"
         >
           生成跟进话术
         </button>
@@ -650,7 +652,7 @@ function FormField({ label, value, required = false }: { label: string; value: s
   return (
     <div>
       <p className="mb-1 text-xs text-clay/60">{label} {required && <span className="text-red-500">*</span>}</p>
-      <div className="rounded-[14px] border border-clay/10 bg-linen px-3 py-2 text-sm font-medium text-cedar">
+      <div className="rounded-[14px] border border-snow bg-linen px-3 py-2 text-sm font-medium text-cedar">
         {value}
       </div>
     </div>
@@ -660,14 +662,14 @@ function FormField({ label, value, required = false }: { label: string; value: s
 function ActionResultCard({ card, onAsk }: { card: Record<string, unknown>; onAsk: (prompt: string) => void }) {
   const type = String(card.type);
   return (
-    <div className="space-y-3 rounded-[18px] bg-white/70 p-3 text-sm">
+    <div className="space-y-3 rounded-[18px] border border-snow bg-white p-3 text-sm shadow-sm">
       <div>
         <p className="text-xs text-copper">AI动作卡</p>
         <h3 className="mt-1 text-lg font-semibold text-cedar">{String(card.title)}</h3>
       </div>
 
       {"script" in card && (
-        <div className="rounded-[16px] bg-linen px-3 py-3 text-sm leading-relaxed text-cedar">
+      <div className="rounded-[14px] border border-snow bg-linen px-3 py-3 text-sm leading-relaxed text-cedar">
           {String(card.script)}
         </div>
       )}
@@ -675,7 +677,7 @@ function ActionResultCard({ card, onAsk }: { card: Record<string, unknown>; onAs
       {"metrics" in card && (
         <div className="grid grid-cols-2 gap-2">
           {(card.metrics as string[]).map((metric) => (
-            <div key={metric} className="rounded-[14px] bg-linen px-3 py-2 text-xs font-medium text-cedar">{metric}</div>
+            <div key={metric} className="rounded-[14px] border border-snow bg-linen px-3 py-2 text-xs font-medium text-cedar">{metric}</div>
           ))}
         </div>
       )}
@@ -683,7 +685,7 @@ function ActionResultCard({ card, onAsk }: { card: Record<string, unknown>; onAs
       {"items" in card && (
         <div className="space-y-2">
           {(card.items as Array<string | Record<string, string>>).map((item, index) => (
-            <div key={typeof item === "string" ? item : `${type}-${index}`} className="rounded-[14px] bg-linen px-3 py-2 text-xs leading-relaxed text-cedar">
+            <div key={typeof item === "string" ? item : `${type}-${index}`} className="rounded-[14px] border border-snow bg-linen px-3 py-2 text-xs leading-relaxed text-cedar">
               {typeof item === "string" ? item : (
                 <div>
                   <p className="font-semibold">{item.name} · {item.priority}</p>
@@ -703,7 +705,7 @@ function ActionResultCard({ card, onAsk }: { card: Record<string, unknown>; onAs
               key={action}
               type="button"
               onClick={() => onAsk(action)}
-              className="w-full rounded-[16px] border border-copper/25 px-3 py-2 text-left text-xs font-medium text-copper"
+              className="w-full rounded-[14px] border border-snow px-3 py-2 text-left text-xs font-semibold text-copper"
             >
               {action}
             </button>
@@ -726,14 +728,14 @@ function ProductInventoryCard({ card, onAsk }: { card: Record<string, unknown>; 
   }>;
 
   return (
-    <div className="space-y-3 rounded-[18px] bg-white/70 p-3 text-sm">
+    <div className="space-y-3 rounded-[18px] border border-snow bg-white p-3 text-sm shadow-sm">
       <div>
         <p className="text-xs text-copper">产品团期库存</p>
         <h3 className="mt-1 text-lg font-semibold text-cedar">不同出行日期的团期余位与价格</h3>
       </div>
       <div className="space-y-2">
         {items.map((item) => (
-          <div key={`${item.productName}-${item.date}`} className="rounded-[16px] bg-linen px-3 py-3">
+          <div key={`${item.productName}-${item.date}`} className="rounded-[16px] border border-snow bg-linen px-3 py-3">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-semibold leading-snug text-cedar">{item.productName}</p>
@@ -744,23 +746,23 @@ function ProductInventoryCard({ card, onAsk }: { card: Record<string, unknown>; 
               </span>
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-[14px] bg-white/60 px-3 py-2">
+              <div className="rounded-[14px] border border-snow bg-white px-3 py-2">
                 <p className="text-clay/55">团期库存</p>
                 <p className="mt-1 font-semibold text-cedar">{item.remaining > 0 ? `${item.remaining}席` : "候补"}</p>
               </div>
-              <div className="rounded-[14px] bg-white/60 px-3 py-2">
+              <div className="rounded-[14px] border border-snow bg-white px-3 py-2">
                 <p className="text-clay/55">团期价格</p>
                 <p className="mt-1 font-semibold text-cedar">{item.price}</p>
               </div>
             </div>
-            <p className="mt-2 rounded-[14px] bg-copper/10 px-3 py-2 text-xs leading-relaxed text-cedar">{item.roomSummary}</p>
+            <p className="mt-2 rounded-[14px] bg-slate-100 px-3 py-2 text-xs leading-relaxed text-cedar">{item.roomSummary}</p>
           </div>
         ))}
       </div>
       <button
         type="button"
         onClick={() => onAsk("基于6月18日梅里雪山产品团期生成报价方案")}
-        className="w-full rounded-[16px] bg-clay px-3 py-2 text-xs font-medium text-parchment"
+        className="w-full rounded-[14px] bg-copper px-3 py-2 text-xs font-semibold text-white"
       >
         用推荐团期生成报价
       </button>
@@ -780,14 +782,14 @@ function HotelInventoryCard({ card, onAsk }: { card: Record<string, unknown>; on
   }>;
 
   return (
-    <div className="space-y-3 rounded-[18px] bg-white/70 p-3 text-sm">
+    <div className="space-y-3 rounded-[18px] border border-snow bg-white p-3 text-sm shadow-sm">
       <div>
         <p className="text-xs text-copper">酒店房型库存</p>
         <h3 className="mt-1 text-lg font-semibold text-cedar">单店单日房型库存与房价</h3>
       </div>
       <div className="space-y-2">
         {items.map((item) => (
-          <div key={`${item.hotelName}-${item.date}-${item.roomType}`} className="rounded-[16px] bg-linen px-3 py-3">
+          <div key={`${item.hotelName}-${item.date}-${item.roomType}`} className="rounded-[16px] border border-snow bg-linen px-3 py-3">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-semibold leading-snug text-cedar">{item.hotelName}</p>
@@ -798,23 +800,23 @@ function HotelInventoryCard({ card, onAsk }: { card: Record<string, unknown>; on
               </span>
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-[14px] bg-white/60 px-3 py-2">
+              <div className="rounded-[14px] border border-snow bg-white px-3 py-2">
                 <p className="text-clay/55">可售房量</p>
                 <p className="mt-1 font-semibold text-cedar">{item.remaining > 0 ? `${item.remaining}间` : "候补"}</p>
               </div>
-              <div className="rounded-[14px] bg-white/60 px-3 py-2">
+              <div className="rounded-[14px] border border-snow bg-white px-3 py-2">
                 <p className="text-clay/55">房价</p>
                 <p className="mt-1 font-semibold text-cedar">{item.price}</p>
               </div>
             </div>
-            <p className="mt-2 rounded-[14px] bg-copper/10 px-3 py-2 text-xs leading-relaxed text-cedar">{item.policy}</p>
+            <p className="mt-2 rounded-[14px] bg-slate-100 px-3 py-2 text-xs leading-relaxed text-cedar">{item.policy}</p>
           </div>
         ))}
       </div>
       <button
         type="button"
         onClick={() => onAsk("把松赞梅里山居6月18日雪山景观大床房加入报价并生成方案")}
-        className="w-full rounded-[16px] bg-clay px-3 py-2 text-xs font-medium text-parchment"
+        className="w-full rounded-[14px] bg-copper px-3 py-2 text-xs font-semibold text-white"
       >
         锁定房态并加入报价
       </button>
@@ -824,7 +826,7 @@ function HotelInventoryCard({ card, onAsk }: { card: Record<string, unknown>; on
 
 function CustomerInsightCard({ customer, onAsk }: { customer: Customer; onAsk: (prompt: string) => void }) {
   return (
-    <div className="space-y-3 rounded-[18px] bg-white/70 p-3 text-sm">
+    <div className="space-y-3 rounded-[18px] border border-snow bg-white p-3 text-sm shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs text-copper">客户作战卡</p>
@@ -847,7 +849,7 @@ function CustomerInsightCard({ customer, onAsk }: { customer: Customer; onAsk: (
       </div>
       <div className="space-y-2">
         {customer.orders.slice(0, 2).map((order) => (
-          <div key={order.product} className="rounded-[16px] bg-linen px-3 py-2">
+          <div key={order.product} className="rounded-[16px] border border-snow bg-linen px-3 py-2">
             <div className="flex justify-between gap-2 text-xs">
               <strong>{order.year} · {order.product}</strong>
               <span className="text-copper">{order.amount}</span>
@@ -861,14 +863,14 @@ function CustomerInsightCard({ customer, onAsk }: { customer: Customer; onAsk: (
         <button
           type="button"
           onClick={() => onAsk(`为${customer.name}生成一段适合企微发送的跟进话术`)}
-          className="rounded-[16px] bg-clay px-3 py-2 text-xs font-medium text-parchment"
+          className="rounded-[14px] bg-copper px-3 py-2 text-xs font-semibold text-white"
         >
           生成跟进话术
         </button>
         <button
           type="button"
           onClick={() => onAsk(`帮${customer.name}做一个亲子版本报价`)}
-          className="rounded-[16px] border border-copper/25 px-3 py-2 text-xs font-medium text-copper"
+          className="rounded-[14px] border border-snow px-3 py-2 text-xs font-semibold text-copper"
         >
           做亲子报价
         </button>
@@ -881,7 +883,7 @@ function QuoteResultCard({ card, onAsk }: { card: Record<string, unknown>; onAsk
   const product = card.product as Product;
   const days = card.days as string[];
   return (
-    <div className="space-y-3 rounded-[18px] bg-white/70 p-3 text-sm">
+    <div className="space-y-3 rounded-[18px] border border-snow bg-white p-3 text-sm shadow-sm">
       <div>
         <p className="text-xs text-copper">报价草案</p>
         <h3 className="mt-1 text-lg font-semibold leading-snug text-cedar">{product.name}</h3>
@@ -889,25 +891,25 @@ function QuoteResultCard({ card, onAsk }: { card: Record<string, unknown>; onAsk
       </div>
       <div className="space-y-2">
         {days.map((day, index) => (
-          <div key={day} className="flex gap-2 rounded-[16px] bg-linen px-3 py-2">
+          <div key={day} className="flex gap-2 rounded-[16px] border border-snow bg-linen px-3 py-2">
             <span className="text-xs font-semibold text-copper">D{index + 1}</span>
             <span className="text-xs leading-relaxed text-clay/80">{day}</span>
           </div>
         ))}
       </div>
-      <p className="rounded-[16px] bg-copper/10 px-3 py-2 text-xs leading-relaxed text-cedar">风险提示：{product.altitudeRisk}</p>
+      <p className="rounded-[14px] bg-slate-100 px-3 py-2 text-xs leading-relaxed text-cedar">风险提示：{product.altitudeRisk}</p>
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={() => onAsk("把当前报价生成PDF行程单")}
-          className="rounded-[16px] bg-clay px-3 py-2 text-xs font-medium text-parchment"
+          className="rounded-[14px] bg-copper px-3 py-2 text-xs font-semibold text-white"
         >
           生成PDF
         </button>
         <button
           type="button"
           onClick={() => onAsk("生成一段发送当前报价给客户的企微话术")}
-          className="rounded-[16px] border border-copper/25 px-3 py-2 text-xs font-medium text-copper"
+          className="rounded-[14px] border border-snow px-3 py-2 text-xs font-semibold text-copper"
         >
           发给客户
         </button>

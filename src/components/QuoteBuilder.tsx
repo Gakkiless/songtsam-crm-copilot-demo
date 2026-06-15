@@ -19,7 +19,7 @@ export default function QuoteBuilder() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-[20px] border border-clay/10 bg-parchment p-4 shadow-soft">
+      <section className="rounded-[20px] border border-snow bg-white p-4 shadow-soft">
         <h2 className="text-lg font-semibold text-cedar">AI 报价生成</h2>
         <p className="mt-1 text-sm leading-relaxed text-clay/70">按客户类型和节奏生成可演示的报价草案，后续可接入真实库存、订单和PDF服务。</p>
         <div className="mt-4 space-y-4">
@@ -32,16 +32,16 @@ export default function QuoteBuilder() {
         <button
           type="button"
           onClick={() => setGenerated(true)}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] bg-clay px-4 py-3 font-semibold text-parchment shadow-soft"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-[14px] bg-copper px-4 py-3 font-semibold text-white shadow-soft"
         >
           <Wand2 size={18} />生成报价
         </button>
       </section>
 
       {generated && (
-        <section className="space-y-4 rounded-[20px] border border-clay/10 bg-white/65 p-4 shadow-soft">
+        <section className="space-y-4 rounded-[20px] border border-snow bg-white p-4 shadow-soft">
           <WorkflowSteps steps={steps} />
-          <div className="rounded-[20px] bg-parchment p-4">
+          <div className="rounded-[18px] border border-snow bg-linen p-4">
             <p className="text-xs text-copper">推荐产品</p>
             <h3 className="mt-1 text-xl font-semibold text-cedar">{product.name}</h3>
             <p className="mt-2 text-sm text-clay/75">{form.month}出行 · {form.people}人 · {form.pace}节奏 · 预算{form.budget}</p>
@@ -51,9 +51,9 @@ export default function QuoteBuilder() {
               <p><strong className="text-cedar">车辆安排：</strong>{product.vehicle}</p>
               <p><strong className="text-cedar">活动安排：</strong>{product.activities.join("、")}</p>
               <p><strong className="text-cedar">预估价格：</strong>{form.budget === "15万+" ? "¥150,000 起" : `约 ¥${Number.parseInt(form.budget) * 10000 - 8000} - ¥${Number.parseInt(form.budget) * 10000}`}</p>
-              <p className="rounded-[16px] bg-copper/10 px-3 py-2 text-cedar"><strong>风险提示：</strong>{product.altitudeRisk}</p>
+              <p className="rounded-[14px] bg-slate-100 px-3 py-2 text-cedar"><strong>风险提示：</strong>{product.altitudeRisk}</p>
             </div>
-            <button type="button" className="mt-4 flex w-full items-center justify-center gap-2 rounded-[20px] border border-copper/30 px-4 py-3 font-semibold text-copper">
+            <button type="button" className="mt-4 flex w-full items-center justify-center gap-2 rounded-[14px] border border-snow bg-white px-4 py-3 font-semibold text-copper">
               <FileText size={18} />生成 PDF
             </button>
           </div>
@@ -73,7 +73,7 @@ function Picker({ label, value, values, onChange }: { label: string; value: stri
             key={item}
             type="button"
             onClick={() => onChange(item)}
-            className={`rounded-full px-3 py-2 text-sm transition ${value === item ? "bg-clay text-parchment" : "bg-linen text-clay"}`}
+            className={`rounded-[12px] px-3 py-2 text-sm transition ${value === item ? "bg-copper text-white" : "bg-linen text-clay"}`}
           >
             {item}
           </button>

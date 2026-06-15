@@ -6,7 +6,7 @@ export default function ProductCard({ product, compact = false, onClick }: { pro
     <button
       type="button"
       onClick={onClick}
-      className="w-full rounded-[20px] border border-clay/10 bg-parchment p-4 text-left shadow-soft transition active:scale-[0.99]"
+      className="w-full rounded-[20px] border border-snow bg-white p-4 text-left shadow-soft transition active:scale-[0.99]"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -14,7 +14,7 @@ export default function ProductCard({ product, compact = false, onClick }: { pro
           <h3 className="mt-1 text-[17px] font-semibold leading-snug text-cedar">{product.name}</h3>
           <p className="mt-1 text-sm text-clay/70">{product.duration} · {product.priceRange}</p>
         </div>
-        <div className="grid h-12 min-w-12 place-items-center rounded-[18px] bg-copper/12 text-copper">
+        <div className="grid h-12 min-w-12 place-items-center rounded-[16px] bg-slate-100 text-copper">
           <span className="text-sm font-semibold">{product.score}%</span>
         </div>
       </div>
@@ -30,7 +30,7 @@ export default function ProductCard({ product, compact = false, onClick }: { pro
           <p className="flex gap-2"><Mountain className="mt-0.5 shrink-0 text-copper" size={16} />{product.hotels}</p>
           <p className="flex gap-2"><Sparkles className="mt-0.5 shrink-0 text-copper" size={16} />{product.activities.join("、")}</p>
           <p className="flex gap-2"><ShieldAlert className="mt-0.5 shrink-0 text-copper" size={16} />{product.altitudeRisk}</p>
-          <p className="rounded-[16px] bg-linen px-3 py-2 text-cedar">{product.reason}</p>
+          <p className="rounded-[14px] border border-snow bg-linen px-3 py-2 text-cedar">{product.reason}</p>
           <p className="text-xs text-clay/60">不适合：{product.notFor.join("、")}</p>
         </div>
       )}

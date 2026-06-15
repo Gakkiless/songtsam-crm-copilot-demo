@@ -4,20 +4,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        linen: "#F8F8F8",
+        linen: "#F6F7F9",
         parchment: "#FFFFFF",
-        clay: "#000000",
-        cedar: "#000000",
-        copper: "#A43127",
-        snow: "#EEEEEE",
-        sage: "#7C7251",
+        clay: "#64748B",
+        cedar: "#172033",
+        copper: "#020617",
+        snow: "#E5E7EB",
+        sage: "#16A34A",
       },
       boxShadow: {
-        songtsam: "0 8px 24px rgba(0, 0, 0, 0.06)",
-        soft: "0 4px 14px rgba(0, 0, 0, 0.05)",
+        songtsam: "0 18px 48px rgba(15, 23, 42, 0.10)",
+        soft: "0 8px 24px rgba(15, 23, 42, 0.08)",
       },
       fontFamily: {
         sans: [
+          "Inter",
           "HarmonyOS Sans",
           "Source Han Sans SC",
           "PingFang SC",
