@@ -4,9 +4,6 @@ import {
   Bot,
   CalendarClock,
   ChevronDown,
-  ClipboardList,
-  History,
-  Menu,
   MessageSquareText,
   Mic,
   Send,
@@ -37,19 +34,12 @@ type ChatSession = {
   latestResult?: RouterResult;
 };
 
-type SidebarMenuKey = "profile" | "todo" | "history" | "assistant";
+export type SidebarMenuKey = "profile" | "todo" | "history" | "assistant";
 
 const commandGroups = [
   { label: "查产品库存", prompt: "查6月梅里雪山产品团期库存和价格" },
   { label: "查酒店库存", prompt: "查松赞梅里山居6月18日雪山景观大床房库存和价格" },
   { label: "生成报价", prompt: "帮我做一个暑期亲子版本报价" },
-];
-
-const sidebarMenuItems: Array<{ key: SidebarMenuKey; label: string; description: string }> = [
-  { key: "profile", label: "客户画像", description: "客户标签与画像摘要" },
-  { key: "todo", label: "我的待办", description: "跟进提醒与待办任务" },
-  { key: "history", label: "客史信息", description: "会员、消费和记录" },
-  { key: "assistant", label: "用户关系助手", description: "销售沟通业务流" },
 ];
 
 const offlineActivityRecords = [
@@ -117,12 +107,16 @@ function createWelcomeMessage(customer: Customer): Message {
   };
 }
 
-export default function ChatPanel({ initialPrompt }: { initialPrompt?: string }) {
+export default function ChatPanel({
+  initialPrompt,
+  activeMenu = "assistant",
+}: {
+  initialPrompt?: string;
+  activeMenu?: SidebarMenuKey;
+}) {
   const [input, setInput] = useState("");
   const [sessionSwitcherOpen, setSessionSwitcherOpen] = useState(false);
   const [salesFlowOpen, setSalesFlowOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<SidebarMenuKey>("assistant");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState(mockCustomers[0].id);
   const [sessions, setSessions] = useState<ChatSession[]>(() =>
     mockCustomers.map((customer) => ({
@@ -151,6 +145,12 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
+  useEffect(() => {
+    if (activeMenu !== "assistant") {
+      setSalesFlowOpen(false);
+    }
+  }, [activeMenu]);
+
   function updateSession(sessionId: string, updater: (session: ChatSession) => ChatSession) {
     setSessions((current) => current.map((session) => (session.id === sessionId ? updater(session) : session)));
   }
@@ -161,14 +161,6 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
 
   function switchSession(sessionId: string) {
     setCurrentSessionId(sessionId);
-  }
-
-  function selectMenu(key: SidebarMenuKey) {
-    setActiveMenu(key);
-    setMenuOpen(false);
-    if (key !== "assistant") {
-      setSalesFlowOpen(false);
-    }
   }
 
   async function submit(value = input, targetSessionId = currentSessionId) {
@@ -222,20 +214,7 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
   }
 
   if (salesFlowOpen) {
-    return (
-      <SalesJourneyFlow
-        customer={currentCustomer}
-        onClose={() => setSalesFlowOpen(false)}
-        headerAction={
-          <SidebarMenuButton
-            activeMenu={activeMenu}
-            open={menuOpen}
-            onToggle={() => setMenuOpen((current) => !current)}
-            onSelect={selectMenu}
-          />
-        }
-      />
-    );
+    return <SalesJourneyFlow customer={currentCustomer} onClose={() => setSalesFlowOpen(false)} />;
   }
 
   return (
@@ -263,14 +242,6 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
               </p>
             </div>
           </button>
-          <div className="flex shrink-0 items-center gap-2">
-            <SidebarMenuButton
-              activeMenu={activeMenu}
-              open={menuOpen}
-              onToggle={() => setMenuOpen((current) => !current)}
-              onSelect={selectMenu}
-            />
-          </div>
         </div>
       </div>
 
@@ -357,58 +328,6 @@ export default function ChatPanel({ initialPrompt }: { initialPrompt?: string })
       )}
       <IntentAnnotation result={latestResult} />
     </section>
-  );
-}
-
-function SidebarMenuButton({
-  activeMenu,
-  open,
-  onToggle,
-  onSelect,
-}: {
-  activeMenu: SidebarMenuKey;
-  open: boolean;
-  onToggle: () => void;
-  onSelect: (key: SidebarMenuKey) => void;
-}) {
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="grid h-10 w-10 place-items-center rounded-[4px] border border-white/10 bg-white/10 text-white"
-        aria-label="打开侧边栏菜单"
-      >
-        <Menu size={19} />
-      </button>
-      {open && (
-        <div className="absolute right-0 top-12 z-50 w-52 overflow-hidden rounded-[18px] border border-snow bg-white p-1.5 text-cedar shadow-songtsam">
-          {sidebarMenuItems.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => onSelect(item.key)}
-              className={`flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-left ${
-                activeMenu === item.key ? "bg-copper text-white" : "bg-white text-cedar hover:bg-linen"
-              }`}
-            >
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] bg-current/10">
-                {item.key === "profile" && <UserRound size={15} />}
-                {item.key === "todo" && <ClipboardList size={15} />}
-                {item.key === "history" && <History size={15} />}
-                {item.key === "assistant" && <MessageSquareText size={15} />}
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold leading-5">{item.label}</span>
-                <span className={`block text-[11px] leading-4 ${activeMenu === item.key ? "text-white/70" : "text-clay/55"}`}>
-                  {item.description}
-                </span>
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
   );
 }
 
