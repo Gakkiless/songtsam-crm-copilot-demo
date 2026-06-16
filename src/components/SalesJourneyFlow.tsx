@@ -1436,7 +1436,7 @@ function JourneyActionBar({
   }[activeStage];
 
   return (
-    <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[430px] -translate-x-1/2 border-t border-snow bg-white/95 px-5 pb-5 pt-3 shadow-[0_-16px_40px_rgba(15,23,42,0.10)] backdrop-blur">
+    <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[430px] -translate-x-1/2 border-t border-snow bg-white/95 px-5 pb-5 pt-3 shadow-[0_-16px_40px_rgba(15,23,42,0.10)] backdrop-blur lg:left-[calc(50%_-_178px)]">
       <div className={activeStage === "confirm" ? "grid grid-cols-1" : "grid grid-cols-[1fr_1.4fr] gap-2"}>
         {activeStage !== "confirm" && (
           <Button onClick={onSave} className="!h-12 !rounded-[14px] !border-snow !bg-white !text-cedar">
