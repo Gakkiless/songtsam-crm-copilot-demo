@@ -72,12 +72,6 @@ const stageItems: Array<{ key: StageKey; title: string }> = [
   { key: "follow", title: "跟进管理" },
 ];
 
-const preActivities = [
-  { time: "2026-05-18 14:00", title: "松赞影像展上海站", detail: "上海 · 西岸艺术中心下午场" },
-  { time: "2025-11-22 19:30", title: "梅里雪山摄影分享会", detail: "上海 · 静安会员中心晚场" },
-  { time: "2025-08-10 15:00", title: "亲子自然教育沙龙", detail: "杭州 · 良渚文化艺术中心周末场" },
-];
-
 const tagDictionaryDimensions: TagDictionaryDimension[] = [
   {
     key: "emotion",
@@ -514,6 +508,21 @@ const communicationQuestionNodes: Record<string, CommunicationQuestionNode> = {
   },
 };
 
+const communicationTagDimensionsByAction: Record<string, string[]> = {
+  了解工作: ["emotion", "preference"],
+  了解家庭: ["companions", "emotion"],
+  了解兴趣: ["preference", "destination"],
+  建立客户标签: ["emotion", "companions", "altitude"],
+  出行时间: ["timing"],
+  出行人数: ["companions"],
+  预算范围: ["budget"],
+  出行偏好: ["preference", "emotion"],
+  产品匹配: ["destination", "preference", "altitude"],
+  行程推荐: ["destination", "days", "preference"],
+  预算确认: ["budget"],
+  成交推进: ["budget", "timing"],
+};
+
 const communicationConclusionActions: Record<string, string[]> = {
   暂无出行意向: ["建立维护记录", "设置下次提醒"],
   培育中: ["补充需求标签", "设置提醒日期"],
@@ -551,18 +560,19 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
     return Array.from(new Set(tags));
   }, [answers]);
 
+  const salesSelectedTags = useMemo(() => Array.from(new Set(Object.values(salesTags).flat())), [salesTags]);
   const removedTags = useMemo(() => getRemovedTags(manualTags, answerTags), [answerTags, manualTags]);
   const salesTagChanges = useMemo(() => getSalesTagChanges(manualTags, salesTags), [manualTags, salesTags]);
   const mergedTags = useMemo(
-    () => Array.from(new Set([...manualTags.filter((tag) => !removedTags.includes(tag)), ...answerTags])),
-    [answerTags, manualTags, removedTags],
+    () => Array.from(new Set([...manualTags.filter((tag) => !removedTags.includes(tag)), ...answerTags, ...salesSelectedTags])),
+    [answerTags, manualTags, removedTags, salesSelectedTags],
   );
   const dynamicProducts = useMemo(() => rankProducts(mergedTags), [mergedTags]);
   const selectedProducts = useMemo(
     () => mockProducts.filter((product) => selectedProductIds.includes(product.id)),
     [selectedProductIds],
   );
-  const allSalesTagDimensionsSelected = salesTagDimensions.every((dimension) => (salesTags[dimension.key] ?? []).length > 0);
+  const hasSalesTagSelection = salesSelectedTags.length > 0;
   const predictionRequiredComplete = requiredPredictionDimensionKeys.every((key) => {
     const dimension = predictionDimensions.find((item) => item.key === key);
     return Boolean(dimension && hasPredictionSelection(manualTags, dimension));
@@ -577,7 +587,7 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
   const duringTasks = [
     { label: "选择沟通目的", done: Boolean(communicationPurpose) },
     { label: "选择沟通方式", done: Boolean(communicationMethod) },
-    { label: "补充销售标签", done: allSalesTagDimensionsSelected },
+    { label: "选择沟通结果标签", done: hasSalesTagSelection },
     { label: "完成需求沟通地图", done: communicationMapComplete },
     { label: "选择推荐产品", done: selectedProductIds.length > 0 },
     { label: "记录客户反馈", done: customerQuote.trim().length > 0 },
@@ -586,7 +596,7 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
   ];
   const confirmTasks = [
     { label: "最终描述", done: finalRequirement.trim().length > 0 },
-    { label: "确认标签", done: allSalesTagDimensionsSelected },
+    { label: "确认标签", done: hasSalesTagSelection },
     { label: "推荐产品", done: selectedProducts.length > 0 },
     { label: "跟进计划", done: Boolean(followPlan.time && followPlan.method && followPlan.content.trim()) },
   ];
@@ -770,8 +780,6 @@ function PreBriefStage({
   return (
     <>
       <ProfileChecklistCard customer={customer} />
-
-      <ActivityFeed title="近期参与的线下活动" items={preActivities} />
 
       <Card className="songtsam-mobile-card">
         <SectionTitle eyebrow="沟通前" title="标签预判" />
@@ -986,22 +994,7 @@ function DuringStage({
       </Card>
 
       <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="销售标签" title="本次沟通手动确认的信息" />
-        <div className="mt-3 space-y-4">
-          {salesTagDimensions.map((dimension) => (
-            <TagSelectorGroup
-              key={dimension.key}
-              title={dimension.title}
-              options={dimension.options}
-              value={salesTags[dimension.key] ?? []}
-              onChange={(values) => setSalesTags({ ...salesTags, [dimension.key]: values })}
-            />
-          ))}
-        </div>
-      </Card>
-
-      <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="需求沟通地图" title="根据客户状态推荐销售话术" />
+        <SectionTitle eyebrow="需求沟通地图" title="销售话术与沟通结果标签" />
 
         <section className="mt-3 rounded-[18px] border border-snow bg-linen p-3">
           <div className="flex items-center justify-between gap-3">
@@ -1074,6 +1067,32 @@ function DuringStage({
                             {question}
                           </p>
                         ))}
+                      </div>
+                      <div className="mt-4 rounded-[14px] border border-snow bg-linen p-3">
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-semibold leading-[18px] text-copper">沟通结果标签</p>
+                            <p className="mt-1 text-[11px] leading-4 text-clay/55">根据客户回复选择对应标签，和沟通前预判共用同一套标签体系。</p>
+                          </div>
+                          <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] leading-4 text-clay/60 ring-1 ring-snow">
+                            {getActionSelectedTagCount(action, salesTags)} 已选
+                          </span>
+                        </div>
+                        <div className="space-y-3">
+                          {(communicationTagDimensionsByAction[action] ?? []).map((dimensionKey) => {
+                            const dimension = salesTagDimensions.find((item) => item.key === dimensionKey);
+                            if (!dimension) return null;
+                            return (
+                              <TagSelectorGroup
+                                key={`${action}-${dimension.key}`}
+                                title={dimension.title}
+                                options={dimension.options}
+                                value={salesTags[dimension.key] ?? []}
+                                onChange={(values) => setSalesTags({ ...salesTags, [dimension.key]: values })}
+                              />
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1477,26 +1496,6 @@ function TaskCard({ title, items }: { title: string; items: Array<{ label: strin
   );
 }
 
-function ActivityFeed({ title, items }: { title: string; items: Array<{ time: string; title: string; detail: string }> }) {
-  return (
-    <Card className="songtsam-mobile-card">
-      <SectionTitle eyebrow="线下活动" title={title} />
-      <div className="mt-4 space-y-4">
-        {items.map((item) => (
-          <div key={`${item.time}-${item.title}`} className="relative border-l border-copper/20 pl-4">
-            <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-copper" />
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-medium leading-5">{item.title}</h3>
-              <span className="shrink-0 text-[11px] text-clay/50">{item.time}</span>
-            </div>
-            <p className="mt-1 text-xs leading-[18px] text-clay/70">{item.detail}</p>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
 function ProfileChecklistCard({ customer }: { customer: Customer }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const profileLabelGroups = [
@@ -1723,6 +1722,10 @@ function TagSelectorGroup({
       />
     </div>
   );
+}
+
+function getActionSelectedTagCount(action: string, salesTags: Record<string, string[]>) {
+  return (communicationTagDimensionsByAction[action] ?? []).reduce((total, dimensionKey) => total + (salesTags[dimensionKey] ?? []).length, 0);
 }
 
 function SelectableProductCard({

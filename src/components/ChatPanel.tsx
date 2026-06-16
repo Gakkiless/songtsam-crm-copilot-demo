@@ -433,9 +433,36 @@ function TodoPage({ currentCustomer, onAsk }: { currentCustomer: Customer; onAsk
   );
 }
 
+function getMemberPreferences(customer: Customer) {
+  const preferenceMap: Record<string, Array<{ label: string; value: string }>> = {
+    "cus-wang": [
+      { label: "饮食偏好", value: "清淡少辣，儿童餐需提前确认" },
+      { label: "住宿偏好", value: "亲子房或连通房，优先景观房" },
+      { label: "鞋码", value: "女士 38 / 儿童 32" },
+    ],
+    "cus-zhang": [
+      { label: "饮食偏好", value: "偏好本地特色，少油少甜" },
+      { label: "住宿偏好", value: "套房或私密性高的房型" },
+      { label: "鞋码", value: "男士 42" },
+    ],
+    "cus-chen": [
+      { label: "饮食偏好", value: "无特殊忌口，早餐偏中式" },
+      { label: "住宿偏好", value: "摄影景观房，方便早出拍摄" },
+      { label: "鞋码", value: "男士 41" },
+    ],
+  };
+
+  return preferenceMap[customer.id] ?? [
+    { label: "饮食偏好", value: "待补充" },
+    { label: "住宿偏好", value: "待补充" },
+    { label: "鞋码", value: "待补充" },
+  ];
+}
+
 function CustomerProfilePage({ customer, onAsk }: { customer: Customer; onAsk: (prompt: string) => void }) {
   const groups = [
     { title: "身份信息", items: [...customer.profileChecklist.identity, ...customer.profileChecklist.residence] },
+    { title: "会员偏好", items: getMemberPreferences(customer) },
     { title: "家庭与同行", items: customer.profileChecklist.household },
     { title: "消费画像", items: customer.profileChecklist.consumption },
     { title: "互动风险", items: customer.profileChecklist.interactionRisk },
