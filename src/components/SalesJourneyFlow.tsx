@@ -4,7 +4,6 @@ import {
   ChevronDown,
   CircleDot,
   ListChecks,
-  Lock,
   Mic,
   Plus,
   Sparkles,
@@ -603,22 +602,11 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
   const isPreComplete = preTasks.every((item) => item.done);
   const isDuringComplete = duringTasks.every((item) => item.done);
   const isConfirmComplete = confirmTasks.every((item) => item.done);
-  const canEnterStage: Record<StageKey, boolean> = {
-    pre: true,
-    during: isPreComplete,
-    confirm: isPreComplete && isDuringComplete,
-    follow: isPreComplete && isDuringComplete && isConfirmComplete,
-  };
-
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
   }, [activeStage]);
 
   function handleStageChange(stage: StageKey) {
-    if (!canEnterStage[stage]) {
-      Toast.show({ content: "请先完成当前阶段任务", position: "bottom" });
-      return;
-    }
     setActiveStage(stage);
   }
 
@@ -660,19 +648,7 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
         <div className="mt-4 rounded-[18px] bg-white px-2 py-1 shadow-soft">
           <Tabs activeKey={activeStage} onChange={(key) => handleStageChange(key as StageKey)}>
             {stageItems.map((stage) => (
-              <Tabs.Tab
-                key={stage.key}
-                title={
-                  canEnterStage[stage.key] ? (
-                    stage.title
-                  ) : (
-                    <span className="inline-flex items-center justify-center gap-1 text-clay/45">
-                      {stage.title}
-                      <Lock size={11} />
-                    </span>
-                  )
-                }
-              />
+              <Tabs.Tab key={stage.key} title={stage.title} />
             ))}
           </Tabs>
         </div>
