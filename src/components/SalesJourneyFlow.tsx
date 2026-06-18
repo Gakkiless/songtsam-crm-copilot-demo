@@ -18,7 +18,7 @@ import { mockProducts } from "../data/mockProducts";
 import type { Customer, Product } from "../types";
 
 type StageKey = "pre" | "during" | "confirm" | "follow";
-type FollowPlan = { time: Date | null; method: string; content: string };
+type FollowPlan = { time: Date | null; content: string };
 type PredictionDimension = {
   key: string;
   title: string;
@@ -144,8 +144,6 @@ const tagGroups: Record<string, string[]> = {
 };
 
 const communicationMethods = ["企业微信", "电话沟通", "线下面谈", "到店沟通", "会员活动", "家庭群沟通", "其他"];
-
-const followMethods = ["企业微信", "电话回访", "线下面谈", "发送方案", "会员活动邀约", "管家协同"];
 
 const profileToDemandRules: Array<{ sources: string[]; demands: string[] }> = [
   { sources: ["高净值家庭", "亲子", "孩子", "三代", "父母"], demands: ["亲子陪伴", "亲子家庭", "三代同游", "自然教育", "慢节奏"] },
@@ -540,10 +538,8 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
   const [dealLikelihood, setDealLikelihood] = useState("");
   const [finalRequirement, setFinalRequirement] = useState("");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [methodPickerOpen, setMethodPickerOpen] = useState(false);
   const [followPlan, setFollowPlan] = useState<FollowPlan>({
     time: null,
-    method: "",
     content: "",
   });
 
@@ -593,7 +589,7 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
     { label: "最终描述", done: finalRequirement.trim().length > 0 },
     { label: "确认标签", done: hasSalesTagSelection },
     { label: "推荐产品", done: selectedProducts.length > 0 },
-    { label: "跟进计划", done: Boolean(followPlan.time && followPlan.method && followPlan.content.trim()) },
+    { label: "提醒设置", done: Boolean(followPlan.time && followPlan.content.trim()) },
   ];
   const isPreComplete = preTasks.every((item) => item.done);
   const isDuringComplete = duringTasks.every((item) => item.done);
@@ -705,8 +701,6 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
             setFinalRequirement={setFinalRequirement}
             datePickerOpen={datePickerOpen}
             setDatePickerOpen={setDatePickerOpen}
-            methodPickerOpen={methodPickerOpen}
-            setMethodPickerOpen={setMethodPickerOpen}
             taskItems={confirmTasks}
           />
         )}
@@ -1134,8 +1128,6 @@ function ConfirmStage({
   setFinalRequirement,
   datePickerOpen,
   setDatePickerOpen,
-  methodPickerOpen,
-  setMethodPickerOpen,
   taskItems,
 }: {
   selectedProducts: Product[];
@@ -1146,8 +1138,6 @@ function ConfirmStage({
   setFinalRequirement: (value: string) => void;
   datePickerOpen: boolean;
   setDatePickerOpen: (open: boolean) => void;
-  methodPickerOpen: boolean;
-  setMethodPickerOpen: (open: boolean) => void;
   taskItems: Array<{ label: string; done: boolean }>;
 }) {
   return (
@@ -1196,24 +1186,17 @@ function ConfirmStage({
       </Card>
 
       <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="下次跟进计划" title="设置提醒时间与内容" />
+        <SectionTitle eyebrow="下次提醒计划" title="设置提醒时间与内容" />
         <div className="mt-3 space-y-3">
           <button type="button" onClick={() => setDatePickerOpen(true)} className="flex w-full items-center justify-between rounded-[16px] border border-snow bg-linen px-4 py-4 text-left">
-            <span className="text-sm">跟进时间</span>
+            <span className="text-sm">提醒时间</span>
             <span className={followPlan.time ? "text-sm text-copper" : "text-sm text-[#999]"}>
-              {followPlan.time ? formatDateTime(followPlan.time) : "请选择跟进时间"}
-            </span>
-          </button>
-          <button type="button" onClick={() => setMethodPickerOpen(true)} className="flex w-full items-center justify-between rounded-[16px] border border-snow bg-linen px-4 py-4 text-left">
-            <span className="text-sm">跟进方式</span>
-            <span className="inline-flex items-center gap-1 text-sm text-copper">
-              {followPlan.method}
-              <ChevronDown size={15} />
+              {followPlan.time ? formatDateTime(followPlan.time) : "请选择提醒时间"}
             </span>
           </button>
           <div className="rounded-[18px] border border-snow bg-linen p-3">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-medium leading-5">跟进内容</p>
+              <p className="text-sm font-medium leading-5">提醒内容</p>
               <button type="button" aria-label="语音输入" className="inline-flex h-8 w-8 items-center justify-center rounded-[4px] bg-white text-copper">
                 <Mic size={14} />
               </button>
@@ -1236,13 +1219,6 @@ function ConfirmStage({
         precision="minute"
         onClose={() => setDatePickerOpen(false)}
         onConfirm={(value) => setFollowPlan({ ...followPlan, time: value })}
-      />
-      <Picker
-        visible={methodPickerOpen}
-        columns={[followMethods.map((method) => ({ label: method, value: method }))]}
-        value={[followPlan.method]}
-        onClose={() => setMethodPickerOpen(false)}
-        onConfirm={(value: PickerValue[]) => setFollowPlan({ ...followPlan, method: String(value[0] ?? followPlan.method) })}
       />
 
       <TaskCard title="需求确认任务" items={taskItems} />
@@ -1293,7 +1269,7 @@ function FollowStage({
         { title: "客户原话", detail: customerQuote || "未记录客户原话" },
         {
           title: "下次待办",
-          detail: `${followPlan.time ? formatDateTime(followPlan.time) : "未设置跟进时间"} · ${followPlan.method} · ${followPlan.content}`,
+          detail: `${followPlan.time ? formatDateTime(followPlan.time) : "未设置提醒时间"} · ${followPlan.content}`,
         },
       ],
     },
