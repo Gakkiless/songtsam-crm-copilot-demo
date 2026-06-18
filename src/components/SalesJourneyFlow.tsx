@@ -9,7 +9,7 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-import { Button, Card, DatePicker, Picker, Popup, Selector, Tabs, Tag, TextArea, Toast } from "antd-mobile";
+import { Button, Card, DatePicker, Picker, Popup, Selector, Tabs, TextArea, Toast } from "antd-mobile";
 import type { PickerValue } from "antd-mobile/es/components/picker";
 import { AnimatePresence, motion } from "framer-motion";
 import type { ReactNode } from "react";
@@ -68,8 +68,10 @@ const stageItems: Array<{ key: StageKey; title: string }> = [
   { key: "pre", title: "沟通前" },
   { key: "during", title: "沟通中" },
   { key: "confirm", title: "需求确认" },
-  { key: "follow", title: "跟进管理" },
+  { key: "follow", title: "沟通记录" },
 ];
+
+const customerAvatarUrl = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80";
 
 const tagDictionaryDimensions: TagDictionaryDimension[] = [
   {
@@ -522,12 +524,6 @@ const communicationTagDimensionsByAction: Record<string, string[]> = {
   成交推进: ["budget", "timing"],
 };
 
-const communicationConclusionActions: Record<string, string[]> = {
-  暂无出行意向: ["建立维护记录", "设置下次提醒"],
-  培育中: ["补充需求标签", "设置提醒日期"],
-  强意向客户: ["推荐产品", "生成产品匹配结果"],
-};
-
 export default function SalesJourneyFlow({ customer, onClose, headerAction }: SalesJourneyFlowProps) {
   const [activeStage, setActiveStage] = useState<StageKey>("pre");
   const [manualTags, setManualTags] = useState<string[]>([]);
@@ -629,12 +625,14 @@ export default function SalesJourneyFlow({ customer, onClose, headerAction }: Sa
           <Button fill="none" className="!h-10 !w-10 !rounded-full !bg-white/10 !p-0 !text-white" onClick={onClose}>
             <ArrowLeft size={19} />
           </Button>
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[18px] bg-white/10 text-lg font-semibold text-white ring-1 ring-white/10">
-            {customer.name.slice(0, 1)}
-          </div>
+          <img
+            src={customerAvatarUrl}
+            alt={`${customer.name}头像`}
+            className="h-12 w-12 shrink-0 rounded-[18px] object-cover ring-1 ring-white/10"
+          />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h1 className="truncate text-base font-semibold leading-6 text-white">{customer.name} · {customer.memberLevel}</h1>
+              <h1 className="truncate text-base font-semibold leading-6 text-white">{customer.name} · {customer.city}</h1>
             </div>
             <p className="text-xs leading-[18px] text-white/65">
               {customer.memberCardNo} · {customer.memberLevel} · {customer.memberPhone}
@@ -970,17 +968,13 @@ function DuringStage({
       </Card>
 
       <Card className="songtsam-mobile-card">
-        <SectionTitle eyebrow="需求沟通地图" title="销售话术与沟通结果标签" />
+        <SectionTitle eyebrow="需求沟通地图" title="需求沟通地图" />
 
         <section className="mt-3 rounded-[18px] border border-snow bg-linen p-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs leading-[18px] text-copper">客户状态快速判断</p>
-              <h3 className="mt-1 text-sm font-semibold leading-5 text-cedar">{communicationStatus}</h3>
+              <h3 className="text-sm font-semibold leading-5 text-cedar">{communicationStatus}</h3>
             </div>
-            <span className="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] leading-4 text-clay ring-1 ring-snow">
-              可随时修改
-            </span>
           </div>
           <p className="mt-2 text-xs leading-[18px] text-clay/70">{communicationPath.explanation}</p>
           <div className="mt-3 space-y-3">
@@ -1078,29 +1072,6 @@ function DuringStage({
           </div>
         </section>
 
-        <section className="mt-3 rounded-[18px] border border-snow bg-linen p-3">
-          <p className="text-xs leading-[18px] text-copper">沟通结论</p>
-          <div className="mt-3">
-            <Selector
-              showCheckMark={false}
-              value={communicationMapAnswers.conclusion ? [communicationMapAnswers.conclusion] : []}
-              options={Object.keys(communicationConclusionActions).map((option) => ({ label: option, value: option }))}
-              onChange={(value) => setCommunicationMapAnswers({ ...communicationMapAnswers, conclusion: String(value[0] ?? "") })}
-            />
-          </div>
-          {communicationMapAnswers.conclusion && (
-            <div className="mt-3 rounded-[14px] border border-snow bg-white p-3">
-              <p className="text-xs font-medium leading-[18px] text-cedar">建议</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {communicationConclusionActions[communicationMapAnswers.conclusion].map((action) => (
-                  <span key={action} className="rounded-full bg-sage/12 px-3 py-1.5 text-xs leading-5 text-sage">
-                    {action}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
       </Card>
 
       <Card className="songtsam-mobile-card">
@@ -1438,11 +1409,10 @@ function JourneyActionBar({
   );
 }
 
-function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
+function SectionTitle({ title }: { eyebrow: string; title: string }) {
   return (
     <div>
-      <p className="text-xs leading-[18px] text-copper">{eyebrow}</p>
-      <h2 className="mt-1 text-lg font-medium leading-7">{title}</h2>
+      <h2 className="text-lg font-medium leading-7">{title}</h2>
     </div>
   );
 }
@@ -1600,11 +1570,10 @@ function FloatingRecommendationPanel({
           </p>
           <h2 className="mt-1 truncate text-base font-medium">{topProduct.name}</h2>
         </div>
-        <Tag color="primary" className="!rounded-[4px]">{recommendScore(topProduct, tags)}%</Tag>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2 text-center">
         <StatusMetric label="匹配度" value={`${recommendScore(topProduct, tags)}%`} tone="warm" />
-        <StatusMetric label="风险" value={tags.includes("怕高反") ? "中" : "低"} tone="gray" />
+        <StatusMetric label="业务类型" value={getProductBusinessType(topProduct)} tone="gray" />
         <StatusMetric label="推荐" value={`${selectedProductIds.length}`} tone="green" />
       </div>
       <p className="mt-3 text-xs leading-[18px] text-clay/70">推荐依据：{tags.length ? tags.slice(0, 5).join("、") : "暂无标签"}</p>
@@ -1818,6 +1787,14 @@ function expandDemandTags(tags: string[]) {
 function getProductMatchedTags(product: Product, tags: string[]) {
   const expandedTags = expandDemandTags(tags);
   return product.productTags.filter((tag) => expandedTags.includes(tag));
+}
+
+function getProductBusinessType(product: Product) {
+  const text = `${product.name}${product.audience.join("")}${product.productTags.join("")}${product.reason}`;
+  if (text.includes("定制") || text.includes("私密")) return "私人定制";
+  if (text.includes("管家")) return "私享管家";
+  if (text.includes("自由")) return "自由行";
+  return "主题团";
 }
 
 function rankProducts(tags: string[]) {
