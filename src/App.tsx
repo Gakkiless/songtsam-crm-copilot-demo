@@ -1,5 +1,6 @@
 import { ClipboardList, History, MessageSquareText, UserRound } from "lucide-react";
 import { useState } from "react";
+import AdminManagementPanel from "./components/AdminManagementPanel";
 import ChatPanel, { type SidebarMenuKey } from "./components/ChatPanel";
 
 const demoMenus: Array<{
@@ -24,7 +25,7 @@ export default function App() {
 
   return (
     <main className="min-h-screen bg-[#eef2f6] text-cedar">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1180px] items-start justify-center gap-14 px-6">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1580px] items-start justify-center gap-10 px-6">
         <div className="min-h-screen w-full max-w-[430px] bg-linen shadow-[0_24px_90px_rgba(15,23,42,0.10)]">
           <ChatPanel activeMenu={activeMenu} />
         </div>
@@ -61,6 +62,7 @@ export default function App() {
             </div>
           </div>
         </aside>
+        <AdminManagementPanel />
       </div>
     </main>
   );
