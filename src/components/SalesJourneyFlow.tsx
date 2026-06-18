@@ -1535,7 +1535,6 @@ function FloatingRecommendationPanel({
   selectedProductIds: string[];
   onToggleProduct: (id: string) => void;
 }) {
-  const topProduct = products[0];
   return (
     <Card className="songtsam-mobile-card">
       <div className="flex items-start justify-between gap-3">
@@ -1544,13 +1543,8 @@ function FloatingRecommendationPanel({
             <TrendingUp size={14} />
             Floating Recommendation
           </p>
-          <h2 className="mt-1 truncate text-base font-medium">{topProduct.name}</h2>
+          <h2 className="mt-1 truncate text-base font-medium">需求标签匹配产品</h2>
         </div>
-      </div>
-      <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-        <StatusMetric label="匹配度" value={`${recommendScore(topProduct, tags)}%`} tone="warm" />
-        <StatusMetric label="业务类型" value={getProductBusinessType(topProduct)} tone="gray" />
-        <StatusMetric label="推荐" value={`${selectedProductIds.length}`} tone="green" />
       </div>
       <p className="mt-3 text-xs leading-[18px] text-clay/70">推荐依据：{tags.length ? tags.slice(0, 5).join("、") : "暂无标签"}</p>
       <div className="mt-4 space-y-3">
@@ -1582,20 +1576,6 @@ function FloatingRecommendationPanel({
         })}
       </div>
     </Card>
-  );
-}
-
-function StatusMetric({ label, value, tone }: { label: string; value: string; tone: "warm" | "green" | "gray" }) {
-  const toneClass = {
-    warm: "bg-slate-100 text-copper",
-    green: "bg-sage/15 text-sage",
-    gray: "bg-linen text-clay",
-  }[tone];
-  return (
-    <div className={`rounded-[14px] px-3 py-2 ${toneClass}`}>
-      <p className="text-[11px] leading-4 opacity-75">{label}</p>
-      <p className="mt-1 text-sm font-medium leading-5">{value}</p>
-    </div>
   );
 }
 
@@ -1763,14 +1743,6 @@ function expandDemandTags(tags: string[]) {
 function getProductMatchedTags(product: Product, tags: string[]) {
   const expandedTags = expandDemandTags(tags);
   return product.productTags.filter((tag) => expandedTags.includes(tag));
-}
-
-function getProductBusinessType(product: Product) {
-  const text = `${product.name}${product.audience.join("")}${product.productTags.join("")}${product.reason}`;
-  if (text.includes("定制") || text.includes("私密")) return "私人定制";
-  if (text.includes("管家")) return "私享管家";
-  if (text.includes("自由")) return "自由行";
-  return "主题团";
 }
 
 function rankProducts(tags: string[]) {
