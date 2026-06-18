@@ -1881,5 +1881,5 @@ function formatFollowRecordTime(date: Date) {
 
 function formatConversionOrderTitle(date: Date) {
   const pad = (value: number) => String(value).padStart(2, "0");
-  return `${pad(date.getMonth() + 1)}月${pad(date.getDate())}日完成转化`;
+  return `${pad(date.getMonth() + 1)}月${pad(date.getDate())}日 ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
