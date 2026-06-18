@@ -1,6 +1,6 @@
 import { ClipboardList, History, MessageSquareText, UserRound } from "lucide-react";
-import { useState } from "react";
-import AdminManagementPanel from "./components/AdminManagementPanel";
+import { useEffect, useState } from "react";
+import AdminManagementPage, { AdminManagementEntry } from "./components/AdminManagementPanel";
 import ChatPanel, { type SidebarMenuKey } from "./components/ChatPanel";
 
 const demoMenus: Array<{
@@ -17,15 +17,36 @@ const demoMenus: Array<{
 
 export default function App() {
   const [activeMenu, setActiveMenu] = useState<SidebarMenuKey>("assistant");
+  const [route, setRoute] = useState(() => (window.location.hash === "#/admin" ? "admin" : "demo"));
+
+  useEffect(() => {
+    const syncRoute = () => setRoute(window.location.hash === "#/admin" ? "admin" : "demo");
+    window.addEventListener("hashchange", syncRoute);
+    return () => window.removeEventListener("hashchange", syncRoute);
+  }, []);
 
   if (window.location.pathname === "/demo-v2" || window.location.pathname === "/communication-demo") {
     window.location.replace("/");
     return null;
   }
 
+  function openAdminPage() {
+    window.location.hash = "/admin";
+    setRoute("admin");
+  }
+
+  function backToDemo() {
+    window.location.hash = "/";
+    setRoute("demo");
+  }
+
+  if (route === "admin") {
+    return <AdminManagementPage onBack={backToDemo} />;
+  }
+
   return (
     <main className="min-h-screen bg-[#eef2f6] text-cedar">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1580px] items-start justify-center gap-10 px-6">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1180px] items-start justify-center gap-14 px-6">
         <div className="min-h-screen w-full max-w-[430px] bg-linen shadow-[0_24px_90px_rgba(15,23,42,0.10)]">
           <ChatPanel activeMenu={activeMenu} />
         </div>
@@ -62,7 +83,7 @@ export default function App() {
             </div>
           </div>
         </aside>
-        <AdminManagementPanel />
+        <AdminManagementEntry onOpen={openAdminPage} />
       </div>
     </main>
   );
